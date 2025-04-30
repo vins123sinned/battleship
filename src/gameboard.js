@@ -4,8 +4,10 @@ export class Gameboard {
   constructor(rows, columns) {
     this.rows = rows;
     this.columns = columns;
+
     this.board = null;
     this.ships = [];
+    this.missedAttacks = [];
 
     this.createBoard();
   }
@@ -17,7 +19,7 @@ export class Gameboard {
       const row = [];
 
       for (let j = 0; j < this.columns; j++) {
-        row.push({ship: null, hit: false});
+        row.push([]);
       }
 
       this.board.push(row);
@@ -28,9 +30,18 @@ export class Gameboard {
     const newShip = new Ship(coordinates.length);
 
     coordinates.forEach((coordinate) => {
-      this.board[coordinate[0]][coordinate[1]].ship = newShip;
+      this.board[coordinate[0]][coordinate[1]] = newShip;
     });
 
     this.ships.push(newShip);
+  }
+
+  receiveAttack(coordinate) {
+    if (this.board[coordinate[0]][coordinate[1]].length !== 0) {
+      // invokes hit method on ship that occupies the coordinates
+      this.board[coordinate[0]][coordinate[1]].hit();
+    } else {
+      this.missedAttacks.push(coordinate);
+    }
   }
 }
