@@ -53,9 +53,9 @@ describe("gameboard class", () => {
     testGameboard2.placeShip([[3, 6], [3, 5]]);
 
     testGameboard.receiveAttack([3, 2]);
-    expect(testGameboard.missedAttacks).toHaveLength(1);
+    expect(testGameboard.attacks).toHaveLength(1);
     testGameboard.receiveAttack([3, 1]);
-    expect(testGameboard.missedAttacks).toHaveLength(2);
+    expect(testGameboard.attacks).toHaveLength(2);
     testGameboard.receiveAttack([3, 3]);
     expect(testGameboard.board[3][3].hitTimes).toBe(1);
 
@@ -64,5 +64,26 @@ describe("gameboard class", () => {
     expect(testGameboard2.board[3][5].hitTimes).toBe(2);
     expect(testGameboard2.ships[0].hitTimes).toBe(0);
     expect(testGameboard2.ships[1].hitTimes).toBe(2);
+
+    expect(testGameboard.receiveAttack([3, 2])).toBe('Already attacked!');
+  });
+
+  test("all ships have sunk", () => {
+    const testGameboard = new Gameboard(8, 8);
+    const testGameboard2 = new Gameboard(4, 7);
+
+    testGameboard.placeShip([[3, 3]]);
+    testGameboard2.placeShip([[1, 1]]);
+    testGameboard2.placeShip([[3, 6], [3, 5]]);
+
+    expect(testGameboard.allShipsSunk()).toBe(false);
+    testGameboard.receiveAttack([3, 3]);
+    expect(testGameboard.allShipsSunk()).toBe(true);
+
+    testGameboard2.receiveAttack([1, 1]);
+    testGameboard2.receiveAttack([3, 6]);
+    expect(testGameboard2.allShipsSunk()).toBe(false);
+    testGameboard2.receiveAttack([3, 5]);
+    expect(testGameboard2.allShipsSunk()).toBe(true);
   });
 });

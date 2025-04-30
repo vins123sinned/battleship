@@ -1,3 +1,4 @@
+import { electron } from "webpack";
 import { Ship } from "./ship";
 
 export class Gameboard {
@@ -7,7 +8,7 @@ export class Gameboard {
 
     this.board = null;
     this.ships = [];
-    this.missedAttacks = [];
+    this.attacks = [];
 
     this.createBoard();
   }
@@ -37,11 +38,26 @@ export class Gameboard {
   }
 
   receiveAttack(coordinate) {
+    // checks if attack was already received
+    if (this.attacks.some((attack) => attack.coordinate[0] === coordinate[0] && attack.coordinate[1] === coordinate[1])) return 'Already attacked!';
+
     if (this.board[coordinate[0]][coordinate[1]].length !== 0) {
       // invokes hit method on ship that occupies the coordinates
       this.board[coordinate[0]][coordinate[1]].hit();
+
+      this.attacks.push({
+        coordinate,
+        result: 'hit',
+      });
     } else {
-      this.missedAttacks.push(coordinate);
+      this.attacks.push({
+        coordinate,
+        result: 'miss',
+      });
     }
+  }
+
+  allShipsSunk() {
+    return this.ships.some((ship) => !ship.isSunk()) ? false : true;
   }
 }
