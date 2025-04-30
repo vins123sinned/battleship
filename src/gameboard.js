@@ -1,8 +1,11 @@
+import { Ship } from "./ship";
+
 export class Gameboard {
   constructor(rows, columns) {
     this.rows = rows;
     this.columns = columns;
     this.board = null;
+    this.ships = [];
 
     this.createBoard();
   }
@@ -19,5 +22,15 @@ export class Gameboard {
 
       this.board.push(row);
     }
+  }
+
+  placeShip(coordinates) {
+    const newShip = new Ship(coordinates.length);
+
+    coordinates.forEach((coordinate) => {
+      this.board[coordinate[0]][coordinate[1]].ship = newShip;
+    });
+
+    this.ships.push(newShip);
   }
 }
