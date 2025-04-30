@@ -1,29 +1,29 @@
 {
-  "name": "template-repository",
+  "name": "battleship",
   "version": "1.0.0",
-  "description": "A simple template repository with webpack to kickstart your new project",
+  "description": "Battleship game create with Test Driven Development (TDD)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack serve --config webpack.dev.js",
     "deploy": "git subtree push --prefix dist origin gh-pages"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vins123sinned/template-repository.git"
+    "url": "git+https://github.com/vins123sinned/battleship.git"
   },
   "keywords": [
-    "template",
-    "webpack",
+    "battleship",
+    "classic",
     "vinson"
   ],
   "author": "Vinson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/vins123sinned/template-repository/issues"
+    "url": "https://github.com/vins123sinned/battleship.git"
   },
-  "homepage": "https://github.com/vins123sinned/template-repository#readme",
+  "homepage": "https://github.com/vins123sinned/battleship#readme",
   "devDependencies": {
     "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.3",
