@@ -14,6 +14,15 @@ describe("gameboard class", () => {
 
   test("gameboard creates correct board", () => {
     const testGameboard = new Gameboard(8, 8);
-    const testGameboard2 = new Gameboard(4, 8);
+    const testGameboard2 = new Gameboard(4, 7);
+
+    expect(testGameboard.board).not.toBeNull();
+    expect(testGameboard2.board).not.toBeNull();
+
+    expect(testGameboard.board.length).toBe(8);
+    expect(testGameboard2.board.length).toBe(4);
+
+    expect(testGameboard.board[0].length).toBe(8);
+    expect(testGameboard2.board[3].length).toBe(7);
   });
 });
