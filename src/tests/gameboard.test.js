@@ -1,0 +1,19 @@
+import { Gameboard } from "../gameboard";
+
+describe("gameboard class", () => {
+  test("gameboard creates correct instance", () => {
+    const testGameboard = new Gameboard(8, 8);
+    const testGameboard2 = new Gameboard(4, 8);
+
+    expect(testGameboard.rows).toBe(8);
+    expect(testGameboard.columns).toBe(8);
+
+    expect(testGameboard2.rows).toBe(4);
+    expect(testGameboard2.columns).toBe(8);
+  });
+
+  test("gameboard creates correct board", () => {
+    const testGameboard = new Gameboard(8, 8);
+    const testGameboard2 = new Gameboard(4, 8);
+  });
+});
