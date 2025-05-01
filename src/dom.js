@@ -13,7 +13,7 @@ export function createPlayer() {
         [[1, 7]],
         [[1, 9]],
         [[4, 8], [3, 8]],
-        [[5, 9], [6, 9], [7, 9]],
+        [[6, 9], [7, 9], [8, 9]],
     ];
 
     populateGameboard(shipCoordinates, player.gameboard);
@@ -25,4 +25,41 @@ function populateGameboard(coordinates, gameboard) {
     coordinates.forEach((coordinate) => {
         gameboard.placeShip(coordinate);
     });
+}
+
+export function displayBoards(player, name) {
+    const board = player.gameboard.board;
+
+    const boards = document.querySelector('.boards');
+    const gameboardContainer = document.createElement('div');
+    const gameboard = document.createElement('div');
+    const boardName = document.createElement('h2');
+
+    boardName.textContent = name;
+    gameboardContainer.classList.add('gameboard-container');
+    gameboard.classList.add('gameboard');
+    boardName.classList.add('board-name');
+    
+    let rowIndex = 0;
+    let columnIndex = 0;
+    board.forEach((row) => {
+        // add dataset for coordinates
+        row.forEach((column) => {
+            const columnDiv = document.createElement('div');
+
+            columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
+            columnDiv.classList.add('column');
+            if (column.length !== 0) columnDiv.classList.add('ship-column');
+
+            gameboard.appendChild(columnDiv);
+            columnIndex++;
+        });
+
+        rowIndex++;
+        columnIndex = 0;
+    });
+
+    gameboardContainer.appendChild(gameboard);
+    gameboardContainer.appendChild(boardName);
+    boards.appendChild(gameboardContainer);
 }
