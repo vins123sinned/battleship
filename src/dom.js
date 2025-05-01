@@ -62,4 +62,36 @@ export function displayBoards(player, name) {
     gameboardContainer.appendChild(gameboard);
     gameboardContainer.appendChild(boardName);
     boards.appendChild(gameboardContainer);
+
+    mergeShipCells();
+}
+
+// removes unncessary border between adjacent ship cells
+function mergeShipCells() {
+    const shipCells = document.querySelectorAll('.ship-column');
+    
+    shipCells.forEach((cell) => {
+        const shipCoordinate = cell.dataset.coordinate.split(',');
+
+        const upCell = document.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
+        const downCell = document.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
+        const rightCell = document.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
+        const leftCell = document.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
+
+        if (upCell && upCell.classList.contains('ship-column')) {
+            cell.style.borderBottom = 'none';
+        }
+
+        if (downCell && downCell.classList.contains('ship-column')) {
+            cell.style.borderTop = 'none';
+        }
+
+        if (rightCell && rightCell.classList.contains('ship-column')) {
+            cell.style.borderRight = 'none';
+        }
+
+        if (leftCell && leftCell.classList.contains('ship-column')) {
+            cell.style.borderLeft = 'none';
+        }
+    });
 }
