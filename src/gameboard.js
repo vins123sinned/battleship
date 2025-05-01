@@ -1,5 +1,4 @@
-import { electron } from "webpack";
-import { Ship } from "./ship";
+import { Ship } from "./ship.js";
 
 export class Gameboard {
   constructor(rows, columns) {

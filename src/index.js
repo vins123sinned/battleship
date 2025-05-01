@@ -1,1 +1,2 @@
-import { Ship } from "./ship";
+import { createPlayer } from "./dom.js";
+const playerOne = createPlayer();
