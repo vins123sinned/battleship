@@ -53,7 +53,6 @@ export function displayBoards(player) {
 function createCells(gameboard, boardData, attacks) {
     let rowIndex = 0;
     let columnIndex = 0;
-    console.log(attacks.some((attack) => attack.coordinate[0] === rowIndex.toString() && attack.coordinate[1] === columnIndex.toString()));
 
     boardData.forEach((row) => {
         row.forEach((column) => {
@@ -63,7 +62,7 @@ function createCells(gameboard, boardData, attacks) {
             columnDiv.classList.add('column');
             if (column.length !== 0) columnDiv.classList.add('ship-column');
 
-            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex.toString() && attack.coordinate[1] === columnIndex.toString());
+            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex);
             if (attackInfo) {
                 // cell already hit
                 if (attackInfo.result === 'hit') {

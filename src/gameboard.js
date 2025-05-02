@@ -8,8 +8,10 @@ export class Gameboard {
     this.board = null;
     this.ships = [];
     this.attacks = [];
+    this.availableMoves = [];
 
     this.createBoard();
+    this.populateMoves();
   }
 
   createBoard() {
@@ -23,6 +25,14 @@ export class Gameboard {
       }
 
       this.board.push(row);
+    }
+  }
+
+  populateMoves() {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        this.availableMoves.push([r, c]);
+      }
     }
   }
 
@@ -58,6 +68,13 @@ export class Gameboard {
 
   isAlreadyAttacked(coordinate) {
     return this.attacks.some((attack) => attack.coordinate[0] === coordinate[0] && attack.coordinate[1] === coordinate[1]);
+  }
+
+  chooseRandomCoordinate() {
+    const randomIndex = Math.floor(Math.random() * this.availableMoves.length);
+    const coordinate = this.availableMoves.splice(randomIndex, 1);
+
+    return coordinate[0];
   }
 
   allShipsSunk() {

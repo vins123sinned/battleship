@@ -27,6 +27,21 @@ describe("gameboard class", () => {
     expect(testGameboard2.board[3].length).toBe(7);
   });
 
+  test("gameboard populates available moves", () => {
+    const testGameboard = new Gameboard(8, 8);
+    const testGameboard2 = new Gameboard(4, 8);
+
+    expect(testGameboard.availableMoves).toBeDefined();
+    expect(testGameboard.availableMoves).toContainEqual([2, 2]);
+    expect(testGameboard.availableMoves).toContainEqual([7, 7]);
+    expect(testGameboard.availableMoves).toContainEqual([5, 6]);
+
+    expect(testGameboard2.availableMoves).toBeDefined();
+    expect(testGameboard2.availableMoves).toContainEqual([0, 0]);
+    expect(testGameboard2.availableMoves).toContainEqual([3, 7]);
+    expect(testGameboard2.availableMoves).toContainEqual([3, 0]);
+  })
+
   test("place ship on board", () => {
     const testGameboard = new Gameboard(8, 8);
     const testGameboard2 = new Gameboard(4, 7);
@@ -66,6 +81,19 @@ describe("gameboard class", () => {
     expect(testGameboard2.ships[1].hitTimes).toBe(2);
 
     expect(testGameboard.receiveAttack([3, 2])).toBe('Already attacked!');
+  });
+
+  test("board checks for duplicate attacks", () => {
+    const testGameboard = new Gameboard(10, 10);
+    const testGameboard2 = new Gameboard(4, 7);
+
+    expect(testGameboard.isAlreadyAttacked([1, 2])).toBe(false);
+    testGameboard.receiveAttack([1, 2]);
+    expect(testGameboard.isAlreadyAttacked([1, 2])).toBe(true);
+
+    expect(testGameboard2.receiveAttack([3, 6]));
+    expect(testGameboard2.isAlreadyAttacked([3, 6])).toBe(true);
+    expect(testGameboard2.isAlreadyAttacked([0, 0])).toBe(false);
   });
 
   test("all ships have sunk", () => {
