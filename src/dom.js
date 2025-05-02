@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
 
-export function createPlayer() {
-    const player = new Player();
+export function createPlayer(name, currentTurn = false) {
+    const player = new Player(name, currentTurn);
 
     const shipCoordinates = [
         [[1, 1]],
@@ -27,7 +27,7 @@ function populateGameboard(coordinates, gameboard) {
     });
 }
 
-export function displayBoards(player, name) {
+export function displayBoards(player) {
     const board = player.gameboard.board;
 
     const boards = document.querySelector('.boards');
@@ -35,7 +35,8 @@ export function displayBoards(player, name) {
     const gameboard = document.createElement('div');
     const boardName = document.createElement('h2');
 
-    boardName.textContent = name;
+    gameboard.dataset.player = player.name;
+    boardName.textContent = player.name;
     gameboardContainer.classList.add('gameboard-container');
     gameboard.classList.add('gameboard');
     boardName.classList.add('board-name');
@@ -94,4 +95,25 @@ function mergeShipCells() {
             cell.style.borderLeft = 'none';
         }
     });
+}
+
+export function updatePlayerTurn(playerOne, playerTwo) {
+    const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
+    const nextPlayer = playerOne.currentTurn ? playerTwo: playerOne;
+
+    currentPlayer.currentTurn = false;
+    nextPlayer.currentTurn = true;
+
+    disableBoard(nextPlayer);
+    enableBoard(currentPlayer);
+}
+
+export function disableBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.classList.add('disabled');
+}
+
+export function enableBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.classList.remove('disabled');
 }

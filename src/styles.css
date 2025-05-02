@@ -36,6 +36,7 @@ h1 {
     border-right: 1px solid #000;
     border-bottom: 1px solid #000;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .ship-column {
@@ -46,4 +47,15 @@ h1 {
 .board-name {
     font-weight: 500;
     font-size: 1rem;
+}
+
+/* might change to opponent grid later
+.gameboard.disabled .column {
+    border: 1px solid #000 !important;
+    background-color: #fff;
+}
+*/
+
+.disabled {
+    pointer-events: none;
 }
