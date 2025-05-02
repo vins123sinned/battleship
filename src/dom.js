@@ -145,3 +145,32 @@ export function enableBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.classList.remove('disabled');
 }
+
+export function gameOver(winner) {
+    const overlay = document.createElement('div');
+    const gameOverDiv = document.createElement('div');
+    const gameOverHeading = document.createElement('h1');
+    const gameOverResult = document.createElement('h2');
+    const newGameButton = document.createElement('button');
+
+    gameOverHeading.textContent = 'Game Over!';
+    gameOverResult.textContent = `${winner} has won.`;
+    newGameButton.textContent = 'New game';
+
+    overlay.classList.add('overlay');
+    gameOverDiv.classList.add('game-over-div');
+    gameOverHeading.classList.add('game-over-heading');
+    gameOverResult.classList.add('game-over-result');
+    newGameButton.classList.add('new-game-button');
+
+    newGameButton.addEventListener('click', () => {
+        console.log('click!');
+    });
+
+    gameOverDiv.appendChild(gameOverHeading);
+    gameOverDiv.appendChild(gameOverResult);
+    gameOverDiv.appendChild(newGameButton);
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(gameOverDiv);
+}
