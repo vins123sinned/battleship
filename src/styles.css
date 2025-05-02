@@ -49,13 +49,6 @@ h1 {
     font-size: 1rem;
 }
 
-/* might change to opponent grid later
-.gameboard.disabled .column {
-    border: 1px solid #000 !important;
-    background-color: #fff;
-}
-*/
-
 .disabled {
     pointer-events: none;
 }

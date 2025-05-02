@@ -28,29 +28,50 @@ function populateGameboard(coordinates, gameboard) {
 }
 
 export function displayBoards(player) {
-    const board = player.gameboard.board;
+    const boardData = player.gameboard.board;
 
     const boards = document.querySelector('.boards');
     const gameboardContainer = document.createElement('div');
     const gameboard = document.createElement('div');
-    const boardName = document.createElement('h2');
+    const gameboardName = document.createElement('h2');
 
     gameboard.dataset.player = player.name;
-    boardName.textContent = player.name;
+    gameboardName.textContent = player.name;
     gameboardContainer.classList.add('gameboard-container');
     gameboard.classList.add('gameboard');
-    boardName.classList.add('board-name');
-    
+    gameboardName.classList.add('board-name');
+
+    createCells(gameboard, boardData, player.gameboard.attacks);
+
+    gameboardContainer.appendChild(gameboard);
+    gameboardContainer.appendChild(gameboardName);
+    boards.appendChild(gameboardContainer);
+
+    mergeShipCells();
+}
+
+function createCells(gameboard, boardData, attacks) {
     let rowIndex = 0;
     let columnIndex = 0;
-    board.forEach((row) => {
-        // add dataset for coordinates
+    console.log(attacks.some((attack) => attack.coordinate[0] === rowIndex.toString() && attack.coordinate[1] === columnIndex.toString()));
+
+    boardData.forEach((row) => {
         row.forEach((column) => {
             const columnDiv = document.createElement('div');
 
             columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
             columnDiv.classList.add('column');
             if (column.length !== 0) columnDiv.classList.add('ship-column');
+
+            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex.toString() && attack.coordinate[1] === columnIndex.toString());
+            if (attackInfo) {
+                // cell already hit
+                if (attackInfo.result === 'hit') {
+                    columnDiv.classList.add('hit-column');
+                } else {   
+                    columnDiv.classList.add('miss-column');
+                }
+            }
 
             gameboard.appendChild(columnDiv);
             columnIndex++;
@@ -60,14 +81,10 @@ export function displayBoards(player) {
         columnIndex = 0;
     });
 
-    gameboardContainer.appendChild(gameboard);
-    gameboardContainer.appendChild(boardName);
-    boards.appendChild(gameboardContainer);
-
     mergeShipCells();
 }
 
-// removes unncessary border between adjacent ship cells
+// removes unnecessary border between adjacent ship cells
 function mergeShipCells() {
     const shipCells = document.querySelectorAll('.ship-column');
     
@@ -95,6 +112,13 @@ function mergeShipCells() {
             cell.style.borderLeft = 'none';
         }
     });
+}
+
+export function updateBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.replaceChildren();
+
+    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
 }
 
 export function updatePlayerTurn(playerOne, playerTwo) {

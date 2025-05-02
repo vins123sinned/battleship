@@ -56,6 +56,10 @@ export class Gameboard {
     }
   }
 
+  isAlreadyAttacked(coordinate) {
+    return this.attacks.some((attack) => attack.coordinate[0] === coordinate[0] && attack.coordinate[1] === coordinate[1]);
+  }
+
   allShipsSunk() {
     return this.ships.some((ship) => !ship.isSunk()) ? false : true;
   }
