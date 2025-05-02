@@ -44,6 +44,31 @@ h1 {
     background-color: #cddef5;
 }
 
+.hit-column {
+    background-color: #ffafaf;
+    border-color: #fe4f4f;
+}
+
+.miss-column {
+    background-color: #e2e2e2;
+}
+
+.miss-column::after,
+.hit-column .material-symbols-outlined {
+    height: 100%;
+    content: ' · ';
+    font-size: 2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 
+    'wght' 200;
+}
+
 .board-name {
     font-weight: 500;
     font-size: 1rem;

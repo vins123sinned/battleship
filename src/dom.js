@@ -67,7 +67,12 @@ function createCells(gameboard, boardData, attacks) {
             if (attackInfo) {
                 // cell already hit
                 if (attackInfo.result === 'hit') {
+                    const closeIcon = document.createElement('span');
+                    closeIcon.classList.add('material-symbols-outlined');
+                    closeIcon.textContent = 'close';
+
                     columnDiv.classList.add('hit-column');
+                    columnDiv.appendChild(closeIcon);
                 } else {   
                     columnDiv.classList.add('miss-column');
                 }
