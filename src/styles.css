@@ -94,7 +94,7 @@ button {
 .game-options-div {
     position: absolute;
     top: 4rem;
-    left: 1rem;
+    left: 1.5rem;
     z-index: 999;
 }
 
@@ -103,8 +103,20 @@ button {
     margin-bottom: 0.25rem;
 }
 
+.computer-option,
+.player-option {
+    text-decoration: underline;
+    background-color: transparent;
+    color: #467cc2;
+}
+
 .player-option {
     margin-right: 0.5rem;
+}
+
+.current-option {
+    background-color: #e2e2e2;
+    color: #000;
 }
 
 .start-button {

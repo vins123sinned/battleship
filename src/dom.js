@@ -1,3 +1,4 @@
+import { gameController, players } from "./index.js";
 import { Player } from "./player.js";
 
 export function createPlayer(name, currentTurn = false) {
@@ -41,12 +42,11 @@ export function displayBoard(player) {
     gameboard.classList.add('gameboard');
     gameboardName.classList.add('board-name');
 
-    createCells(gameboard, boardData, player.gameboard.attacks);
-
     gameboardContainer.appendChild(gameboard);
     gameboardContainer.appendChild(gameboardName);
     boards.appendChild(gameboardContainer);
 
+    createCells(gameboard, boardData, player.gameboard.attacks);
     mergeShipCells();
 }
 
@@ -121,6 +121,11 @@ export function displayEmptyBoard(rows = 10, columns = 10) {
     createCells(gameboard, boardData, attacks);
 }
 
+function removeEmptyBoard() {
+    const emptyBoard = document.querySelector('.start-board').parentNode;
+    emptyBoard.remove();
+}
+
 // removes unnecessary border between adjacent ship cells
 function mergeShipCells() {
     const shipCells = document.querySelectorAll('.ship-column');
@@ -151,24 +156,6 @@ function mergeShipCells() {
     });
 }
 
-export function updateBoard(player) {
-    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
-    gameboard.replaceChildren();
-
-    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
-}
-
-export function updatePlayerTurn(playerOne, playerTwo) {
-    const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
-    const nextPlayer = playerOne.currentTurn ? playerTwo: playerOne;
-
-    currentPlayer.currentTurn = false;
-    nextPlayer.currentTurn = true;
-
-    disableBoard(nextPlayer);
-    enableBoard(currentPlayer);
-}
-
 export function disableBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.classList.add('disabled');
@@ -179,7 +166,116 @@ export function enableBoard(player) {
     gameboard.classList.remove('disabled');
 }
 
-export function gameOver(winner) {
+export function gameStart() {
+    const startBoard = document.querySelector('.start-board');
+    const gameOptionsDiv = document.createElement('div');
+    const gameOptionsHeading = document.createElement('h2');
+    const playerOption = document.createElement('button');
+    const computerOption = document.createElement('button');
+    const startButton = document.createElement('button');
+    const overlay = document.createElement('div');
+
+    playerOption.type = 'button';
+    computerOption.type = 'button';
+    startButton.type = 'button';
+
+    gameOptionsHeading.textContent = 'Opponent';
+    playerOption.textContent = 'Player';
+    computerOption.textContent = 'Computer';
+    startButton.textContent = 'Start Game';
+
+    gameOptionsDiv.classList.add('game-options-div');
+    gameOptionsHeading.classList.add('game-options-heading');
+    playerOption.classList.add('player-option', 'current-option');
+    computerOption.classList.add('computer-option');
+    startButton.classList.add('start-button');
+    overlay.classList.add('start-overlay');
+
+    gameOptionsDiv.appendChild(gameOptionsHeading);
+    gameOptionsDiv.appendChild(playerOption);
+    gameOptionsDiv.appendChild(computerOption);
+    gameOptionsDiv.appendChild(startButton);
+
+    startBoard.appendChild(gameOptionsDiv);
+    startBoard.appendChild(overlay);
+
+    playerOption.addEventListener('click', () => {
+        if (computerOption.classList.contains('current-option')) computerOption.classList.remove('current-option');
+        playerOption.classList.add('current-option');
+    });
+
+    computerOption.addEventListener('click', () => {
+        if (playerOption.classList.contains('current-option')) playerOption.classList.remove('current-option');
+        computerOption.classList.add('current-option');
+    });
+
+    startButton.addEventListener('click', () => {
+        const currentOption = document.querySelector('.current-option');
+        
+        removeEmptyBoard();
+
+        players.playerTwo = createPlayer(currentOption.textContent);
+        displayBoard(players.playerTwo);
+
+        document.addEventListener('click', cellClickHandler);
+    });
+}
+
+function cellClickHandler(event) {
+    cellListener(event, players.playerOne, players.playerTwo);
+}
+
+function cellListener(event, playerOne, playerTwo) {
+    console.log('click!')
+    if (event.target.classList.contains('column')) {
+        const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
+        const currentBoard = currentPlayer.gameboard;
+        const coordinate = event.target.dataset.coordinate.split(',').map(Number);
+
+        if (currentBoard.isAlreadyAttacked(coordinate)) return;
+        currentBoard.receiveAttack(coordinate);
+
+        updateBoard(currentPlayer);
+        updatePlayerTurn(playerOne, playerTwo);
+
+        // computer makes move
+        if (playerTwo.currentTurn === true && playerTwo.name === 'Computer') {
+            playerOne.gameboard.receiveAttack(playerOne.gameboard.chooseRandomCoordinate());
+            updateBoard(playerOne);
+            updatePlayerTurn(playerOne, playerTwo);
+        };
+
+        checkGameOver(playerOne, playerTwo);
+    }
+}
+
+function updatePlayerTurn(playerOne, playerTwo) {
+    const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
+    const nextPlayer = playerOne.currentTurn ? playerTwo: playerOne;
+
+    currentPlayer.currentTurn = false;
+    nextPlayer.currentTurn = true;
+
+    disableBoard(nextPlayer);
+    enableBoard(currentPlayer);
+}
+
+function updateBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.replaceChildren();
+
+    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
+}
+
+function checkGameOver(playerOne, playerTwo) {
+    if (playerOne.gameboard.allShipsSunk()) {
+        gameOver(playerTwo.name);
+    } else if (playerTwo.gameboard.allShipsSunk()) {
+        gameOver(playerOne.name);
+    }
+}
+
+function gameOver(winner) {
     const overlay = document.createElement('div');
     const gameOverDiv = document.createElement('div');
     const gameOverHeading = document.createElement('h1');
@@ -198,7 +294,9 @@ export function gameOver(winner) {
     newGameButton.classList.add('new-game-button');
 
     newGameButton.addEventListener('click', () => {
-        console.log('click!');
+        overlay.remove();
+        gameOverDiv.remove();
+        resetGame();
     });
 
     gameOverDiv.appendChild(gameOverHeading);
@@ -209,11 +307,11 @@ export function gameOver(winner) {
     document.body.appendChild(gameOverDiv);
 }
 
-export function gameStart() {
-    const startBoard = document.querySelector('.start-board');
-    const overlay = document.createElement('div');
-    overlay.classList.add('start-overlay');
+function resetGame() {
+    const boards = document.querySelector('.boards');
+    boards.replaceChildren();
 
-    startBoard.appendChild(overlay);
-    // createOverlay
+    document.body.removeEventListener('click', cellClickHandler);
+
+    gameController();
 }
