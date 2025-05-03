@@ -5,20 +5,7 @@ export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
 
     // clear ships' stuff too!
-    const shipCoordinates = [
-        [[1, 1]],
-        [[3, 1], [3, 2], [3, 3]],
-        [[8, 1], [8, 2]],
-        [[5, 3], [5, 4], [5, 5], [5, 6]],
-        [[8, 4], [8, 5]],
-        [[0, 4]],
-        [[1, 7]],
-        [[1, 9]],
-        [[4, 8], [3, 8]],
-        [[6, 9], [7, 9], [8, 9]],
-    ];
-
-    randomizeShips();
+    const shipCoordinates = randomizeShips();
 
     populateGameboard(shipCoordinates, player.gameboard);
 
@@ -31,44 +18,44 @@ function randomizeShips() {
     const takenCoordinates = new Set();
 
     shipsLengths.forEach((length) => {
-        // also add taken coordinates for adjacent tiles!
         while (true) {
             const startingRow = chooseRandom(10);
             const startingColumn = chooseRandom(10);
+            // chooses randomly between horizontal and vertical
+            const isHorizontal = chooseRandom(2) === 0;
+            let invalid = false;
 
-            if (chooseRandom(2) === 0) {
-                // horizontal
-                if ((startingColumn + length) > 10) continue;
+            // check if placement is invalid
 
-                for (let i = 0; i < length; i++) {
-                    if (takenCoordinates.has(`${startingRow},${startingColumn + i}`)) continue;
-                }
+            if (isHorizontal && (startingColumn + length) > 10) continue;
+            if (!isHorizontal && (startingRow + length) > 10) continue;
 
-                const shipArray = [];
-                for (let i = 0; i < length; i++) {
-                    shipArray.push([startingRow, startingColumn + i]);
-                    takenCoordinates.add(`${startingRow},${startingColumn + i}`);
-                }
+            for (let i = 0; i < length; i++) {
+                const row = isHorizontal ? startingRow : startingRow + i;
+                const column = isHorizontal ? startingColumn + i : startingColumn;
 
-                shipCoordinates.push(shipArray);
-                break;
-            } else {
-                // vertical
-                if ((startingRow + length) > 10) continue;
-
-                for (let i = 0; i < length; i++) {
-                    if (takenCoordinates.has(`${startingRow + i},${startingColumn}`)) continue;
-                }
-
-                const shipArray = [];
-                for (let i = 0; i < length; i++) {
-                    shipArray.push([startingRow + i, startingColumn]);
-                    takenCoordinates.add(`${startingRow + i},${startingColumn}`);
-                }
-
-                shipCoordinates.push(shipArray);
-                break;
+                if (takenCoordinates.has(`${row},${column}`)) {
+                    invalid = true;
+                    break;
+                };
             }
+
+            if (invalid) continue;
+
+            const shipArray = [];
+            for (let i = 0; i < length; i++) {
+                const row = isHorizontal ? startingRow : startingRow + i;
+                const column = isHorizontal ? startingColumn + i : startingColumn;
+
+                shipArray.push([row, column]);
+                takenCoordinates.add(`${row},${column}`);
+
+                // add adjacent cells to takenCoordinates
+                takeAdjacent(row, column, takenCoordinates)
+            }
+
+            shipCoordinates.push(shipArray);
+            break;
         }
     });
     
@@ -77,6 +64,21 @@ function randomizeShips() {
 
 function chooseRandom(max) {
     return Math.floor(Math.random() * max);
+}
+
+function takeAdjacent(row, column, takenCoordinates) {
+    const adjacentCells = [
+        [row + 1, column], [row - 1, column],
+        [row, column + 1], [row, column - 1],
+        [row + 1, column + 1], [row + 1, column - 1],
+        [row - 1, column + 1], [row - 1, column - 1],
+    ]
+
+    adjacentCells.forEach((cell) => {
+        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
+
+        if (!takenCoordinates.has(`${cell[0]},${cell[1]}`)) takenCoordinates.add(`${cell[0]},${cell[1]}`);
+    })
 }
 
 function populateGameboard(coordinates, gameboard) {
