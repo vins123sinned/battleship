@@ -4,6 +4,7 @@ import { Player } from "./player.js";
 export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
 
+    // clear ships' stuff too!
     const shipCoordinates = [
         [[1, 1]],
         [[3, 1], [3, 2], [3, 3]],
@@ -17,9 +18,65 @@ export function createPlayer(name, currentTurn = false) {
         [[6, 9], [7, 9], [8, 9]],
     ];
 
+    randomizeShips();
+
     populateGameboard(shipCoordinates, player.gameboard);
 
     return player;
+}
+
+function randomizeShips() {
+    const shipsLengths = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
+    const shipCoordinates = [];
+    const takenCoordinates = new Set();
+
+    shipsLengths.forEach((length) => {
+        // also add taken coordinates for adjacent tiles!
+        while (true) {
+            const startingRow = chooseRandom(10);
+            const startingColumn = chooseRandom(10);
+
+            if (chooseRandom(2) === 0) {
+                // horizontal
+                if ((startingColumn + length) > 10) continue;
+
+                for (let i = 0; i < length; i++) {
+                    if (takenCoordinates.has(`${startingRow},${startingColumn + i}`)) continue;
+                }
+
+                const shipArray = [];
+                for (let i = 0; i < length; i++) {
+                    shipArray.push([startingRow, startingColumn + i]);
+                    takenCoordinates.add(`${startingRow},${startingColumn + i}`);
+                }
+
+                shipCoordinates.push(shipArray);
+                break;
+            } else {
+                // vertical
+                if ((startingRow + length) > 10) continue;
+
+                for (let i = 0; i < length; i++) {
+                    if (takenCoordinates.has(`${startingRow + i},${startingColumn}`)) continue;
+                }
+
+                const shipArray = [];
+                for (let i = 0; i < length; i++) {
+                    shipArray.push([startingRow + i, startingColumn]);
+                    takenCoordinates.add(`${startingRow + i},${startingColumn}`);
+                }
+
+                shipCoordinates.push(shipArray);
+                break;
+            }
+        }
+    });
+    
+    return shipCoordinates
+}
+
+function chooseRandom(max) {
+    return Math.floor(Math.random() * max);
 }
 
 function populateGameboard(coordinates, gameboard) {
@@ -226,7 +283,6 @@ function cellClickHandler(event) {
 }
 
 function cellListener(event, playerOne, playerTwo) {
-    console.log('click!')
     if (event.target.classList.contains('column')) {
         const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
         const currentBoard = currentPlayer.gameboard;
