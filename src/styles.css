@@ -10,6 +10,11 @@ h1 {
     margin-bottom: 5rem;
 }
 
+button {
+    border: none;
+    border-radius: 5px;
+}
+
 .boards {
     display: flex;
     justify-content: space-around;
@@ -78,6 +83,40 @@ h1 {
     pointer-events: none;
 }
 
+.start-board,
+.start-board .column,
+.start-board + .board-name {
+    border-color: #ebeaea;
+    color: #afaeae;
+    position: relative;
+}
+
+.game-options-div {
+    position: absolute;
+    top: 4rem;
+    left: 1rem;
+    z-index: 999;
+}
+
+.game-options-heading {
+    color: #000;
+    margin-bottom: 0.25rem;
+}
+
+.player-option {
+    margin-right: 0.5rem;
+}
+
+.start-button {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    background-color: #467cc2;
+    color: #fff;
+    padding: 0.5rem 0.25rem;
+    margin-top: 1rem;
+}
+
 .game-over-div {
     background-color: #fff;
     border-radius: 1rem;
@@ -110,18 +149,32 @@ h1 {
     font-weight: 600;
     background-color: #467cc2;
     color: #fff;
-    border: none;
-    border-radius: 5px;
     padding: 0.5rem;
     margin: 0.5rem 1rem 0.75rem auto;
 }
 
-.new-game-button:hover {
+.new-game-button:hover,
+.player-option:hover,
+.computer-option:hover,
+.start-button:hover {
     cursor: pointer;
 }
 
-.new-game-button:active {
+.new-game-button:active,
+.start-button:active {
     background-color: #80b0f0;
+}
+
+.start-overlay {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
 }
 
 .overlay {

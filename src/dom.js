@@ -27,7 +27,7 @@ function populateGameboard(coordinates, gameboard) {
     });
 }
 
-export function displayBoards(player) {
+export function displayBoard(player) {
     const boardData = player.gameboard.board;
 
     const boards = document.querySelector('.boards');
@@ -86,6 +86,39 @@ function createCells(gameboard, boardData, attacks) {
     });
 
     mergeShipCells();
+}
+
+export function displayEmptyBoard(rows = 10, columns = 10) {
+    const boards = document.querySelector('.boards');
+    const gameboardContainer = document.createElement('div');
+    const gameboard = document.createElement('div');
+    const gameboardName = document.createElement('h2');
+
+    gameboard.dataset.player = 'Opponent';
+    gameboardName.textContent = 'Opponent';
+    gameboardContainer.classList.add('gameboard-container');
+    gameboard.classList.add('gameboard', 'start-board');
+    gameboardName.classList.add('board-name');
+
+    gameboardContainer.appendChild(gameboard);
+    gameboardContainer.appendChild(gameboardName);
+    boards.appendChild(gameboardContainer);
+
+    // creates necessary data to output empty grid
+    const boardData = [];
+    const attacks  = [];
+    
+    for (let r = 0; r < rows; r++) {
+        const row = [];
+
+        for (let c = 0; c < columns; c++) {
+            row.push([]);
+        }
+
+        boardData.push(row);
+    }
+
+    createCells(gameboard, boardData, attacks);
 }
 
 // removes unnecessary border between adjacent ship cells
@@ -153,6 +186,7 @@ export function gameOver(winner) {
     const gameOverResult = document.createElement('h2');
     const newGameButton = document.createElement('button');
 
+    newGameButton.type = 'button';
     gameOverHeading.textContent = 'Game Over!';
     gameOverResult.textContent = `${winner} has won.`;
     newGameButton.textContent = 'New game';
@@ -173,4 +207,13 @@ export function gameOver(winner) {
 
     document.body.appendChild(overlay);
     document.body.appendChild(gameOverDiv);
+}
+
+export function gameStart() {
+    const startBoard = document.querySelector('.start-board');
+    const overlay = document.createElement('div');
+    overlay.classList.add('start-overlay');
+
+    startBoard.appendChild(overlay);
+    // createOverlay
 }
