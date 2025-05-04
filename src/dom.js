@@ -4,7 +4,6 @@ import { Player } from "./player.js";
 export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
 
-    // clear ships' stuff too!
     const shipCoordinates = randomizeShips();
 
     populateGameboard(shipCoordinates, player.gameboard);
@@ -105,8 +104,36 @@ export function displayBoard(player) {
     gameboardContainer.appendChild(gameboardName);
     boards.appendChild(gameboardContainer);
 
+    // fix when 2 player implementation started!
+    if (player.name === 'Player One') {
+        addRandomizeButton(player, gameboardContainer);
+    }
+
     createCells(gameboard, boardData, player.gameboard.attacks);
-    mergeShipCells();
+}
+
+function addRandomizeButton(player, gameboardContainer) {
+    const randomizeButton = document.createElement('button');
+    const randomizeIcon = document.createElement('span');
+
+    randomizeButton.classList.add('randomize-button');
+    randomizeIcon.classList.add('material-symbols-outlined');
+    randomizeIcon.textContent = 'refresh';
+
+    randomizeButton.type = 'button';
+    randomizeButton.textContent = 'Randomize';
+
+    randomizeButton.appendChild(randomizeIcon);
+    gameboardContainer.appendChild(randomizeButton);
+
+    randomizeButton.addEventListener('click', () => {
+        player.gameboard.clearBoard();
+
+        const shipCoordinates = randomizeShips();
+        populateGameboard(shipCoordinates, player.gameboard);
+
+        updateBoard(player);
+    });
 }
 
 function createCells(gameboard, boardData, attacks) {
@@ -144,7 +171,7 @@ function createCells(gameboard, boardData, attacks) {
         columnIndex = 0;
     });
 
-    mergeShipCells();
+    mergeShipCells(gameboard);
 }
 
 export function displayEmptyBoard(rows = 10, columns = 10) {
@@ -186,16 +213,16 @@ function removeEmptyBoard() {
 }
 
 // removes unnecessary border between adjacent ship cells
-function mergeShipCells() {
-    const shipCells = document.querySelectorAll('.ship-column');
+function mergeShipCells(gameboard) {
+    const shipCells = gameboard.querySelectorAll('.ship-column');
     
     shipCells.forEach((cell) => {
         const shipCoordinate = cell.dataset.coordinate.split(',');
 
-        const upCell = document.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
-        const downCell = document.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
-        const rightCell = document.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
-        const leftCell = document.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
+        const upCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
+        const downCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
+        const rightCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
+        const leftCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
 
         if (upCell && upCell.classList.contains('ship-column')) {
             cell.style.borderBottom = 'none';
@@ -272,11 +299,19 @@ export function gameStart() {
         const currentOption = document.querySelector('.current-option');
         
         removeEmptyBoard();
+        removeRandomizeButtons();
 
         players.playerTwo = createPlayer(currentOption.textContent);
         displayBoard(players.playerTwo);
 
         document.addEventListener('click', cellClickHandler);
+    });
+}
+
+function removeRandomizeButtons() {
+    const randomizeButton = document.querySelectorAll('.randomize-button');
+    randomizeButton.forEach((button) => {
+        button.remove();
     });
 }
 

@@ -80,4 +80,14 @@ export class Gameboard {
   allShipsSunk() {
     return this.ships.some((ship) => !ship.isSunk()) ? false : true;
   }
+
+  clearBoard() {
+    this.board = null;
+    this.ships = [];
+    this.attacks = [];
+    this.availableMoves = [];
+
+    this.createBoard();
+    this.populateMoves();
+  }
 }

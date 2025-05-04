@@ -79,6 +79,21 @@ button {
     font-size: 1rem;
 }
 
+.randomize-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.randomize-button:hover {
+    background-color: #c7c7c7;
+}
+
+.randomize-button:active {
+    background-color: #dddddd;
+}
+
 .disabled {
     pointer-events: none;
 }
@@ -168,7 +183,8 @@ button {
 .new-game-button:hover,
 .player-option:hover,
 .computer-option:hover,
-.start-button:hover {
+.start-button:hover,
+.randomize-button:hover {
     cursor: pointer;
 }
 
