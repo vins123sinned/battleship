@@ -1,3 +1,5 @@
+import { dragInfo, temporaryCoordinates } from "./cell";
+
 export function chooseRandom(max) {
     return Math.floor(Math.random() * max);
 }
@@ -26,7 +28,7 @@ export function takeAdjacent(row, column, takenCoordinates) {
 }
 
 export function untakeCoordinates(usedCoordinates) {
-    const shipCells = draggedShip.querySelectorAll('.ship-cell');
+    const shipCells = dragInfo.draggedShip.querySelectorAll('.ship-cell');
     
     shipCells.forEach((cell) => {
         const [row, column] = cell.dataset.coordinate.split(',');

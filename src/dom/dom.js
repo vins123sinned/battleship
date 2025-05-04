@@ -131,23 +131,3 @@ export function updatePlayerTurn(playerOne, playerTwo) {
     disableBoard(nextPlayer);
     enableBoard(currentPlayer);
 }
-
-function previewShipPlacement(coordinate, usedCoordinates) {
-    const [row, column] =  coordinate.split(',').map(Number);
-    const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
-    const startingRow = isVertical ? row - draggedCellIndex : row;
-    const startingColumn = isVertical? column : column - draggedCellIndex;
-
-    if (draggedShip.childElementCount > 1) {
-        // check if enough space to place and is valid 
-        for (let i = 0; i < draggedShip.childElementCount; i++) {
-            const currentRow = isVertical ? startingRow + i : startingRow;
-            const currentColumn = isVertical ? startingColumn : startingColumn + i;
-
-            if (usedCoordinates.has(`${currentRow},${currentColumn}`)) {
-                isInvalid = true;
-                break;
-            }
-        }
-    }
-}

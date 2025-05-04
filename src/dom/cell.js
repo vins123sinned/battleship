@@ -1,7 +1,12 @@
-let draggedShip = null;
-let draggedCellIndex = null;
-let temporaryCoordinates = new Set();
-let isInvalid = false;
+import { shipDragover, shipDragstart, shipDrop } from "./events.js";
+
+export const dragInfo = {
+    draggedShip: null,
+    draggedCellIndex: null,
+
+}
+export let temporaryCoordinates = new Set();
+export let isInvalid = false;
 
 export function createCells(gameboard, boardData, gameboardObject) {
     let rowIndex = 0;
@@ -14,7 +19,6 @@ export function createCells(gameboard, boardData, gameboardObject) {
             columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
             columnDiv.classList.add('column');
 
-            // maybe move to ship div
             if (gameboardObject.attacks && gameboardObject.attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex)) {
                 // cell already hit
                 if (attackInfo.result === 'hit') {
@@ -33,16 +37,10 @@ export function createCells(gameboard, boardData, gameboardObject) {
             columnIndex++;
 
             if (gameboardObject.usedCoordinates && !gameboardObject.usedCoordinates.has(columnDiv.dataset.coordinate)) {
-                // check if droppable
                 columnDiv.addEventListener('dragover', (event) => {
-                    event.preventDefault();
-
-                    previewShipPlacement(event.target.dataset.coordinate, gameboardObject.usedCoordinates);
+                    shipDragover(event, gameboardObject);
                 });
-
-                columnDiv.addEventListener('drop', (event) => {
-                    event.preventDefault();
-                });
+                columnDiv.addEventListener('drop', shipDrop);
             }
         });
 
@@ -78,34 +76,36 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
             shipIndex++;
 
             shipCell.addEventListener('mousedown', () => {
-                draggedCellIndex = shipCell.dataset.shipIndex;
+                dragInfo.draggedCellIndex = shipCell.dataset.shipIndex;
             });
         });
 
         gameboard.appendChild(shipDiv);
 
         shipDiv.addEventListener('dragstart', (event) => {
-            draggedShip = event.target;
-
-            // create ghost ship for dragging over invalid cells
-            const ghost = shipDiv.cloneNode(true);
-            ghost.style.opacity = '0.5';
-            ghost.style.border = '2px solid #c1121f';
-            ghost.style.position = 'absolute';
-            ghost.style.top = '-1000px'; 
-
-            document.body.appendChild(ghost);
-            event.dataTransfer.setDragImage(ghost, 0, 0);
-
-            setTimeout(() => {
-                document.body.removeChild(ghost);
-            }, 0);
-
-            // makes ship's taken coordinates temporarily available
-            untakeCoordinates(usedCoordinates);
-            console.log(temporaryCoordinates)
+            shipDragstart(event, usedCoordinates);
         });
     });
+}
+
+export function previewShipPlacement(coordinate, usedCoordinates) {
+    const [row, column] =  coordinate.split(',').map(Number);
+    const isVertical = (window.getComputedStyle(dragInfo.draggedShip).display === 'block') ? true : false;
+    const startingRow = isVertical ? row - dragInfo.draggedCellIndex : row;
+    const startingColumn = isVertical? column : column - dragInfo.draggedCellIndex;
+
+    if (dragInfo.draggedShip.childElementCount > 1) {
+        // check if enough space to place and is valid 
+        for (let i = 0; i < dragInfo.draggedShip.childElementCount; i++) {
+            const currentRow = isVertical ? startingRow + i : startingRow;
+            const currentColumn = isVertical ? startingColumn : startingColumn + i;
+
+            if (usedCoordinates.has(`${currentRow},${currentColumn}`)) {
+                isInvalid = true;
+                break;
+            }
+        }
+    }
 }
 
 // removes unnecessary border between adjacent ship cells
