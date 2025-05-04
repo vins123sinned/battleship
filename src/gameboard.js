@@ -37,7 +37,11 @@ export class Gameboard {
   }
 
   placeShip(coordinates) {
-    const newShip = new Ship(coordinates.length);
+    let direction = 'vertical';
+    if (coordinates.length > 1) {
+      if (coordinates[0][0] + 1 !== coordinates[1][0]) direction = 'horizontal';
+    }
+    const newShip = new Ship(coordinates.length, coordinates, direction);
 
     coordinates.forEach((coordinate) => {
       this.board[coordinate[0]][coordinate[1]] = newShip;

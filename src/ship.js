@@ -1,8 +1,10 @@
 export class Ship {
-  constructor(length) {
+  constructor(length, coordinates, direction) {
     this.length = length;
     this.hitTimes = 0;
     this.sunk = false;
+    this.coordinates = coordinates;
+    this.direction = direction;
   }
 
   hit() {

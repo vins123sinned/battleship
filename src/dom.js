@@ -61,30 +61,13 @@ function randomizeShips() {
     return shipCoordinates
 }
 
-function chooseRandom(max) {
-    return Math.floor(Math.random() * max);
-}
-
-function takeAdjacent(row, column, takenCoordinates) {
-    const adjacentCells = [
-        [row + 1, column], [row - 1, column],
-        [row, column + 1], [row, column - 1],
-        [row + 1, column + 1], [row + 1, column - 1],
-        [row - 1, column + 1], [row - 1, column - 1],
-    ]
-
-    adjacentCells.forEach((cell) => {
-        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
-
-        if (!takenCoordinates.has(`${cell[0]},${cell[1]}`)) takenCoordinates.add(`${cell[0]},${cell[1]}`);
-    })
-}
-
 function populateGameboard(coordinates, gameboard) {
     coordinates.forEach((coordinate) => {
         gameboard.placeShip(coordinate);
     });
 }
+
+/* Gameboard */
 
 export function displayBoard(player) {
     const boardData = player.gameboard.board;
@@ -109,7 +92,130 @@ export function displayBoard(player) {
         addRandomizeButton(player, gameboardContainer);
     }
 
-    createCells(gameboard, boardData, player.gameboard.attacks);
+    createCells(gameboard, boardData, player.gameboard.attacks, player.gameboard.ships);
+}
+
+function createCells(gameboard, boardData, attacks, ships) {
+    let rowIndex = 0;
+    let columnIndex = 0;
+
+    boardData.forEach((row) => {
+        row.forEach(() => {
+            const columnDiv = document.createElement('div');
+
+            columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
+            columnDiv.classList.add('column');
+
+            // maybe move to ship div
+            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex);
+            if (attackInfo) {
+                // cell already hit
+                if (attackInfo.result === 'hit') {
+                    const closeIcon = document.createElement('span');
+                    closeIcon.classList.add('material-symbols-outlined');
+                    closeIcon.textContent = 'close';
+
+                    columnDiv.classList.add('hit-column');
+                    columnDiv.appendChild(closeIcon);
+                } else {   
+                    columnDiv.classList.add('miss-column');
+                }
+            }
+
+            gameboard.appendChild(columnDiv);
+            columnIndex++;
+        });
+
+        rowIndex++;
+        columnIndex = 0;
+    });
+
+    if (ships) createShipCells(ships, gameboard);
+    //mergeShipCells(gameboard);
+}
+
+function createShipCells(ships, gameboard) {
+    console.log(ships);
+    ships.forEach((ship) => {
+        const shipDiv = document.createElement('div');
+        shipDiv.classList.add('ship-div');
+        shipDiv.style.position = 'absolute';
+
+        // place ship in correct location
+        const [startingRow, startingColumn] = ship.coordinates[0];
+        shipDiv.style.top = `${(startingRow * 50) - 1}px`;
+        shipDiv.style.left = `${(startingColumn * 50) - 1}px`;
+        shipDiv.style.display = (ship.direction === 'vertical') ? 'block' : 'flex';
+        shipDiv.draggable = 'true';
+
+        // reminder to update coordinates when dragged!
+        ship.coordinates.forEach((coordinate) => {
+            const shipCell = document.createElement('div');
+            shipCell.classList.add('ship-cell');
+            shipCell.dataset.coordinate = `${coordinate[0]},${coordinate[1]}`;
+
+            shipDiv.appendChild(shipCell);
+        });
+
+        gameboard.appendChild(shipDiv);
+    });
+}
+
+// removes unnecessary border between adjacent ship cells
+function mergeShipCells(gameboard) {
+    const shipCells = gameboard.querySelectorAll('.ship-column');
+    
+    shipCells.forEach((cell) => {
+        const shipCoordinate = cell.dataset.coordinate.split(',');
+
+        const upCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
+        const downCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
+        const rightCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
+        const leftCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
+
+        if (upCell && upCell.classList.contains('ship-column')) {
+            cell.style.borderBottom = 'none';
+        }
+
+        if (downCell && downCell.classList.contains('ship-column')) {
+            cell.style.borderTop = 'none';
+        }
+
+        if (rightCell && rightCell.classList.contains('ship-column')) {
+            cell.style.borderRight = 'none';
+        }
+
+        if (leftCell && leftCell.classList.contains('ship-column')) {
+            cell.style.borderLeft = 'none';
+        }
+    });
+}
+
+function cellClickHandler(event) {
+    cellListener(event, players.playerOne, players.playerTwo);
+}
+
+function cellListener(event, playerOne, playerTwo) {
+    if (event.target.classList.contains('column')) {
+        const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
+        const currentBoard = currentPlayer.gameboard;
+        const coordinate = event.target.dataset.coordinate.split(',').map(Number);
+
+        if (currentBoard.isAlreadyAttacked(coordinate)) return;
+        currentBoard.receiveAttack(coordinate);
+
+        updateBoard(currentPlayer);
+        updatePlayerTurn(playerOne, playerTwo);
+
+        // computer makes move
+        if (playerTwo.currentTurn === true && playerTwo.name === 'Computer') {
+            playerOne.gameboard.receiveAttack(playerOne.gameboard.chooseRandomCoordinate());
+            updateBoard(playerOne);
+            updatePlayerTurn(playerOne, playerTwo);
+        };
+
+        checkGameOver(playerOne, playerTwo);
+    }
 }
 
 function addRandomizeButton(player, gameboardContainer) {
@@ -136,42 +242,18 @@ function addRandomizeButton(player, gameboardContainer) {
     });
 }
 
-function createCells(gameboard, boardData, attacks) {
-    let rowIndex = 0;
-    let columnIndex = 0;
-
-    boardData.forEach((row) => {
-        row.forEach((column) => {
-            const columnDiv = document.createElement('div');
-
-            columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
-            columnDiv.classList.add('column');
-            if (column.length !== 0) columnDiv.classList.add('ship-column');
-
-            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex);
-            if (attackInfo) {
-                // cell already hit
-                if (attackInfo.result === 'hit') {
-                    const closeIcon = document.createElement('span');
-                    closeIcon.classList.add('material-symbols-outlined');
-                    closeIcon.textContent = 'close';
-
-                    columnDiv.classList.add('hit-column');
-                    columnDiv.appendChild(closeIcon);
-                } else {   
-                    columnDiv.classList.add('miss-column');
-                }
-            }
-
-            gameboard.appendChild(columnDiv);
-            columnIndex++;
-        });
-
-        rowIndex++;
-        columnIndex = 0;
+function removeRandomizeButtons() {
+    const randomizeButton = document.querySelectorAll('.randomize-button');
+    randomizeButton.forEach((button) => {
+        button.remove();
     });
+}
 
-    mergeShipCells(gameboard);
+function updateBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.replaceChildren();
+
+    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
 }
 
 export function displayEmptyBoard(rows = 10, columns = 10) {
@@ -212,36 +294,6 @@ function removeEmptyBoard() {
     emptyBoard.remove();
 }
 
-// removes unnecessary border between adjacent ship cells
-function mergeShipCells(gameboard) {
-    const shipCells = gameboard.querySelectorAll('.ship-column');
-    
-    shipCells.forEach((cell) => {
-        const shipCoordinate = cell.dataset.coordinate.split(',');
-
-        const upCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
-        const downCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
-        const rightCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
-        const leftCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
-
-        if (upCell && upCell.classList.contains('ship-column')) {
-            cell.style.borderBottom = 'none';
-        }
-
-        if (downCell && downCell.classList.contains('ship-column')) {
-            cell.style.borderTop = 'none';
-        }
-
-        if (rightCell && rightCell.classList.contains('ship-column')) {
-            cell.style.borderRight = 'none';
-        }
-
-        if (leftCell && leftCell.classList.contains('ship-column')) {
-            cell.style.borderLeft = 'none';
-        }
-    });
-}
-
 export function disableBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.classList.add('disabled');
@@ -251,6 +303,8 @@ export function enableBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.classList.remove('disabled');
 }
+
+/* Helper Functions */
 
 export function gameStart() {
     const startBoard = document.querySelector('.start-board');
@@ -308,40 +362,6 @@ export function gameStart() {
     });
 }
 
-function removeRandomizeButtons() {
-    const randomizeButton = document.querySelectorAll('.randomize-button');
-    randomizeButton.forEach((button) => {
-        button.remove();
-    });
-}
-
-function cellClickHandler(event) {
-    cellListener(event, players.playerOne, players.playerTwo);
-}
-
-function cellListener(event, playerOne, playerTwo) {
-    if (event.target.classList.contains('column')) {
-        const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
-        const currentBoard = currentPlayer.gameboard;
-        const coordinate = event.target.dataset.coordinate.split(',').map(Number);
-
-        if (currentBoard.isAlreadyAttacked(coordinate)) return;
-        currentBoard.receiveAttack(coordinate);
-
-        updateBoard(currentPlayer);
-        updatePlayerTurn(playerOne, playerTwo);
-
-        // computer makes move
-        if (playerTwo.currentTurn === true && playerTwo.name === 'Computer') {
-            playerOne.gameboard.receiveAttack(playerOne.gameboard.chooseRandomCoordinate());
-            updateBoard(playerOne);
-            updatePlayerTurn(playerOne, playerTwo);
-        };
-
-        checkGameOver(playerOne, playerTwo);
-    }
-}
-
 function updatePlayerTurn(playerOne, playerTwo) {
     const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
     const nextPlayer = playerOne.currentTurn ? playerTwo: playerOne;
@@ -351,13 +371,6 @@ function updatePlayerTurn(playerOne, playerTwo) {
 
     disableBoard(nextPlayer);
     enableBoard(currentPlayer);
-}
-
-function updateBoard(player) {
-    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
-    gameboard.replaceChildren();
-
-    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
 }
 
 function checkGameOver(playerOne, playerTwo) {
@@ -407,4 +420,23 @@ function resetGame() {
     document.body.removeEventListener('click', cellClickHandler);
 
     gameController();
+}
+
+function chooseRandom(max) {
+    return Math.floor(Math.random() * max);
+}
+
+function takeAdjacent(row, column, takenCoordinates) {
+    const adjacentCells = [
+        [row + 1, column], [row - 1, column],
+        [row, column + 1], [row, column - 1],
+        [row + 1, column + 1], [row + 1, column - 1],
+        [row - 1, column + 1], [row - 1, column - 1],
+    ]
+
+    adjacentCells.forEach((cell) => {
+        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
+
+        if (!takenCoordinates.has(`${cell[0]},${cell[1]}`)) takenCoordinates.add(`${cell[0]},${cell[1]}`);
+    })
 }
