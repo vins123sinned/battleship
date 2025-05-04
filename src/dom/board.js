@@ -1,0 +1,115 @@
+import { createCells, createShipCells, mergeShipCells } from "./cell";
+
+export function displayBoard(player) {
+    const boardData = player.gameboard.board;
+
+    const boards = document.querySelector('.boards');
+    const gameboardContainer = document.createElement('div');
+    const gameboard = document.createElement('div');
+    const gameboardName = document.createElement('h2');
+
+    gameboard.dataset.player = player.name;
+    gameboardName.textContent = player.name;
+    gameboardContainer.classList.add('gameboard-container');
+    gameboard.classList.add('gameboard');
+    gameboardName.classList.add('board-name');
+
+    gameboardContainer.appendChild(gameboard);
+    gameboardContainer.appendChild(gameboardName);
+    boards.appendChild(gameboardContainer);
+
+    // fix when 2 player implementation started!
+    if (player.name === 'Player One') {
+        addRandomizeButton(player, gameboardContainer);
+    }
+
+    createCells(gameboard, boardData, player.gameboard);
+}
+
+export function displayEmptyBoard(rows = 10, columns = 10) {
+    const boards = document.querySelector('.boards');
+    const gameboardContainer = document.createElement('div');
+    const gameboard = document.createElement('div');
+    const gameboardName = document.createElement('h2');
+
+    gameboard.dataset.player = 'Opponent';
+    gameboardName.textContent = 'Opponent';
+    gameboardContainer.classList.add('gameboard-container');
+    gameboard.classList.add('gameboard', 'start-board');
+    gameboardName.classList.add('board-name');
+
+    gameboardContainer.appendChild(gameboard);
+    gameboardContainer.appendChild(gameboardName);
+    boards.appendChild(gameboardContainer);
+
+    // creates necessary data to output empty grid
+    const boardData = [];
+    const attacks  = [];
+    
+    for (let r = 0; r < rows; r++) {
+        const row = [];
+
+        for (let c = 0; c < columns; c++) {
+            row.push([]);
+        }
+
+        boardData.push(row);
+    }
+
+    createCells(gameboard, boardData, attacks);
+}
+
+/* Board Clean Up Functions */
+
+export function enableBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.classList.remove('disabled');
+}
+
+export function disableBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.classList.add('disabled');
+}
+
+export function updateBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    gameboard.replaceChildren();
+
+    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
+}
+
+export function removeEmptyBoard() {
+    const emptyBoard = document.querySelector('.start-board').parentNode;
+    emptyBoard.remove();
+}
+
+function addRandomizeButton(player, gameboardContainer) {
+    const randomizeButton = document.createElement('button');
+    const randomizeIcon = document.createElement('span');
+
+    randomizeButton.classList.add('randomize-button');
+    randomizeIcon.classList.add('material-symbols-outlined');
+    randomizeIcon.textContent = 'refresh';
+
+    randomizeButton.type = 'button';
+    randomizeButton.textContent = 'Randomize';
+
+    randomizeButton.appendChild(randomizeIcon);
+    gameboardContainer.appendChild(randomizeButton);
+
+    randomizeButton.addEventListener('click', () => {
+        player.gameboard.clearBoard();
+
+        const shipCoordinates = randomizeShips();
+        populateGameboard(shipCoordinates, player.gameboard);
+
+        updateBoard(player);
+    });
+}
+
+export function removeRandomizeButtons() {
+    const randomizeButton = document.querySelectorAll('.randomize-button');
+    randomizeButton.forEach((button) => {
+        button.remove();
+    });
+}

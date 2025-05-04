@@ -1,5 +1,6 @@
 import './styles.css';
-import { createPlayer, disableBoard, displayBoard, gameStart, displayEmptyBoard } from "./dom.js";
+import { createPlayer, gameStart } from './dom/dom.js';
+import { displayBoard, displayEmptyBoard, disableBoard } from './dom/board.js';
 
 export const players = {
     playerOne: null,
