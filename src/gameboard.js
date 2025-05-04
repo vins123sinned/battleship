@@ -9,6 +9,7 @@ export class Gameboard {
     this.ships = [];
     this.attacks = [];
     this.availableMoves = [];
+    this.usedCoordinates = new Set();
 
     this.createBoard();
     this.populateMoves();
@@ -93,5 +94,11 @@ export class Gameboard {
 
     this.createBoard();
     this.populateMoves();
+  }
+
+  use(coordinates) {
+    coordinates.forEach((coordinate) => {
+      this.usedCoordinates.add(coordinate);
+    })
   }
 }

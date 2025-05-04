@@ -1,17 +1,20 @@
 import { gameController, players } from "./index.js";
 import { Player } from "./player.js";
 
+let draggedShip = null;
+let draggedCellIndex = null;
+
 export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
 
-    const shipCoordinates = randomizeShips();
+    const shipCoordinates = randomizeShips(player.gameboard);
 
     populateGameboard(shipCoordinates, player.gameboard);
 
     return player;
 }
 
-function randomizeShips() {
+function randomizeShips(gameboard) {
     const shipsLengths = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
     const shipCoordinates = [];
     const takenCoordinates = new Set();
@@ -58,7 +61,23 @@ function randomizeShips() {
         }
     });
     
+    gameboard.use(takenCoordinates);
     return shipCoordinates
+}
+
+function takeAdjacent(row, column, takenCoordinates) {
+    const adjacentCells = [
+        [row + 1, column], [row - 1, column],
+        [row, column + 1], [row, column - 1],
+        [row + 1, column + 1], [row + 1, column - 1],
+        [row - 1, column + 1], [row - 1, column - 1],
+    ]
+
+    adjacentCells.forEach((cell) => {
+        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
+
+        if (!takenCoordinates.has(`${cell[0]},${cell[1]}`)) takenCoordinates.add(`${cell[0]},${cell[1]}`);
+    })
 }
 
 function populateGameboard(coordinates, gameboard) {
@@ -92,10 +111,10 @@ export function displayBoard(player) {
         addRandomizeButton(player, gameboardContainer);
     }
 
-    createCells(gameboard, boardData, player.gameboard.attacks, player.gameboard.ships);
+    createCells(gameboard, boardData, player.gameboard);
 }
 
-function createCells(gameboard, boardData, attacks, ships) {
+function createCells(gameboard, boardData, gameboardObject) {
     let rowIndex = 0;
     let columnIndex = 0;
 
@@ -107,8 +126,7 @@ function createCells(gameboard, boardData, attacks, ships) {
             columnDiv.classList.add('column');
 
             // maybe move to ship div
-            const attackInfo = attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex);
-            if (attackInfo) {
+            if (gameboardObject.attacks && gameboardObject.attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex)) {
                 // cell already hit
                 if (attackInfo.result === 'hit') {
                     const closeIcon = document.createElement('span');
@@ -124,14 +142,32 @@ function createCells(gameboard, boardData, attacks, ships) {
 
             gameboard.appendChild(columnDiv);
             columnIndex++;
+
+            if (gameboardObject.usedCoordinates && !gameboardObject.usedCoordinates.has(columnDiv.dataset.coordinate)) {
+                // check if droppable
+                columnDiv.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+
+                    previewShipPlacement(event.target.dataset.coordinate, gameboardObject.usedCoordinates);
+                });
+
+                columnDiv.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                });
+            }
         });
 
         rowIndex++;
         columnIndex = 0;
     });
 
-    if (ships) createShipCells(ships, gameboard);
+    if (gameboardObject.ships) createShipCells(gameboardObject.ships, gameboard);
     //mergeShipCells(gameboard);
+}
+
+function previewShipPlacement(coordinate, usedCoordinates) {
+    // no need to check if taken because only adjacent will change
+    console.log(coordinate);
 }
 
 function createShipCells(ships, gameboard) {
@@ -149,15 +185,26 @@ function createShipCells(ships, gameboard) {
         shipDiv.draggable = 'true';
 
         // reminder to update coordinates when dragged!
+        let shipIndex = 0;
         ship.coordinates.forEach((coordinate) => {
             const shipCell = document.createElement('div');
             shipCell.classList.add('ship-cell');
             shipCell.dataset.coordinate = `${coordinate[0]},${coordinate[1]}`;
+            shipCell.dataset.shipIndex = shipIndex;
 
             shipDiv.appendChild(shipCell);
+            shipIndex++;
+
+            shipCell.addEventListener('mousedown', () => {
+                draggedCellIndex = shipCell.dataset.shipIndex;
+            });
         });
 
         gameboard.appendChild(shipDiv);
+
+        shipDiv.addEventListener('dragstart', (event) => {
+            draggedShip = event.target;
+        });
     });
 }
 
@@ -424,19 +471,4 @@ function resetGame() {
 
 function chooseRandom(max) {
     return Math.floor(Math.random() * max);
-}
-
-function takeAdjacent(row, column, takenCoordinates) {
-    const adjacentCells = [
-        [row + 1, column], [row - 1, column],
-        [row, column + 1], [row, column - 1],
-        [row + 1, column + 1], [row + 1, column - 1],
-        [row - 1, column + 1], [row - 1, column - 1],
-    ]
-
-    adjacentCells.forEach((cell) => {
-        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
-
-        if (!takenCoordinates.has(`${cell[0]},${cell[1]}`)) takenCoordinates.add(`${cell[0]},${cell[1]}`);
-    })
 }
