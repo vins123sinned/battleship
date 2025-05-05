@@ -32,7 +32,10 @@ export function cellListener(event, playerOne, playerTwo) {
 }
 
 export function shipMousedown(event, usedCoordinates) {
+    // reset these at mouseup after finished!
+    dragInfo.player = (event.target.parentNode.parentNode.dataset.player === 'Player One') ? players.playerOne : players.playerTwo;
     dragInfo.draggedShip = event.target.parentNode;
+    dragInfo.draggedCellIndex = event.target.dataset.shipIndex;
     const draggedShip = dragInfo.draggedShip;
 
     // makes ship's taken coordinates temporarily available
@@ -49,6 +52,10 @@ export function shipMousedown(event, usedCoordinates) {
 
 function dragMove(event) {
     const draggedShip = dragInfo.draggedShip;
+    const elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
+    const coordinate = elementsAtPoint.find((element) =>  element.classList.contains('column')).dataset.coordinate;
+
+    previewShipPlacement(event, coordinate, dragInfo.player.gameboard.usedCoordinates);
 
     const gridRect = draggedShip.parentNode.getBoundingClientRect();
     draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;

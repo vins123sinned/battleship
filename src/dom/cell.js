@@ -1,6 +1,8 @@
 import { shipMousedown } from "./events.js";
+import { adjacentsClear } from "./helpers.js";
 
 export const dragInfo = {
+    player: null,
     draggedShip: null,
     draggedCellIndex: null,
     ghostShip: null,
@@ -82,12 +84,14 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
 }
 
 export function previewShipPlacement(event, coordinate, usedCoordinates) {
+    const { draggedShip, draggedCellIndex } = dragInfo;
     const [row, column] =  coordinate.split(',').map(Number);
-    const isVertical = (window.getComputedStyle(dragInfo.draggedShip).display === 'block') ? true : false;
-    const startingRow = isVertical ? row - dragInfo.draggedCellIndex : row;
-    const startingColumn = isVertical? column : column - dragInfo.draggedCellIndex;
+    const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
+    const startingRow = isVertical ? row - draggedCellIndex : row;
+    const startingColumn = isVertical? column : column - draggedCellIndex;
+    let isInvalid = false;
 
-    for (let i = 0; i < dragInfo.draggedShip.childElementCount; i++) {
+    for (let i = 0; i < draggedShip.childElementCount; i++) {
         const currentRow = isVertical ? startingRow + i : startingRow;
         const currentColumn = isVertical ? startingColumn : startingColumn + i;
 
@@ -95,6 +99,12 @@ export function previewShipPlacement(event, coordinate, usedCoordinates) {
             isInvalid = true;
             break;
         }
+    }
+
+    if (isInvalid) {
+        console.log('invalid!')
+    } else {
+        console.log('valid!');
     }
 }
 
