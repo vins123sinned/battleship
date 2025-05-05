@@ -102,9 +102,24 @@ export function previewShipPlacement(event, coordinate, usedCoordinates) {
     }
 
     if (isInvalid) {
-        console.log('invalid!')
+        draggedShip.style.outline = '4px solid #d62828';
+        draggedShip.style.zIndex = '999';
+
+        const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
+        draggedShipCells.forEach((cell) => {
+            cell.style.backgroundColor = '#f7dada';
+            cell.style.opacity = '0.5';
+        });
     } else {
-        console.log('valid!');
+        draggedShip.style.outline = '4px solid #8ac926';
+        draggedShip.style.top = `${(startingRow * 50) - 1}px`;
+        draggedShip.style.left = `${(startingColumn * 50) - 1}px`;
+
+        const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
+        draggedShipCells.forEach((cell) => {
+            console.log(cell);
+            cell.style.backgroundColor = '#f1fcf7';
+        });
     }
 }
 

@@ -60,9 +60,8 @@ export function temporaryAdjacents(row, column, skipCells) {
     adjacentCells.forEach((cell) => {
         if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
 
-        if (adjacentsTaken(cell[0], cell[1], skipCells)) return console.log('invalid!');
+        if (adjacentsTaken(cell[0], cell[1], skipCells)) return;
 
-        if (!temporaryCoordinates.has(`${cell[0]},${cell[1]}`)) console.log(`${cell[0]},${cell[1]}`)
         if (!temporaryCoordinates.has(`${cell[0]},${cell[1]}`)) temporaryCoordinates.add(`${cell[0]},${cell[1]}`);
     });
 }

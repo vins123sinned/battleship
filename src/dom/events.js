@@ -55,26 +55,14 @@ function dragMove(event) {
     const elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
     const coordinate = elementsAtPoint.find((element) =>  element.classList.contains('column')).dataset.coordinate;
 
-    previewShipPlacement(event, coordinate, dragInfo.player.gameboard.usedCoordinates);
-
     const gridRect = draggedShip.parentNode.getBoundingClientRect();
     draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;
     draggedShip.style.top = `${event.clientY - gridRect.top - dragInfo.offsetY}px`;
+
+    previewShipPlacement(event, coordinate, dragInfo.player.gameboard.usedCoordinates);
 };
 
 function dragEnd() {
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
 }
-
-export function shipDragover(event, usedCoordinates) {
-    event.preventDefault();
-
-    console.log(event.target.dataset.coordinate);
-    
-    previewShipPlacement(event, event.target.dataset.coordinate, usedCoordinates);
-}
-
-export function shipDrop(event) {
-    event.preventDefault();
-}   
