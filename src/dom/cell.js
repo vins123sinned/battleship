@@ -86,14 +86,11 @@ export function placeShip(ship, shipDiv) {
 }
 
 export function previewShipPlacement(coordinate, usedCoordinates) {
-    const { draggedShip, draggedCellIndex } = dragInfo;
+    const { draggedShip } = dragInfo;
 
     if (!coordinate) return applyInvalid(draggedShip);
 
-    const [row, column] =  coordinate.split(',').map(Number);
-    const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
-    const startingRow = isVertical ? row - draggedCellIndex : row;
-    const startingColumn = isVertical? column : column - draggedCellIndex;
+    const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
     let isInvalid = false;
 
     for (let i = 0; i < draggedShip.childElementCount; i++) {
@@ -116,6 +113,17 @@ export function previewShipPlacement(coordinate, usedCoordinates) {
     return isInvalid;
 }
 
+export function getStartingCoords(coordinate) {
+    const { draggedShip, draggedCellIndex } = dragInfo;
+
+    const [row, column] =  coordinate.split(',').map(Number);
+    const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
+    const startingRow = isVertical ? row - draggedCellIndex : row;
+    const startingColumn = isVertical? column : column - draggedCellIndex;
+
+    return [startingRow, startingColumn, isVertical];
+}
+
 function applyInvalid(draggedShip) {
     draggedShip.style.outline = '4px solid #d62828';
     draggedShip.style.zIndex = '999';
@@ -134,7 +142,6 @@ function applyValid(draggedShip, startingRow, startingColumn) {
 
     const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
     draggedShipCells.forEach((cell) => {
-        console.log(cell);
         cell.style.backgroundColor = '#f1fcf7';
     });
 }

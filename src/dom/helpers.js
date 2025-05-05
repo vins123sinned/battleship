@@ -12,6 +12,23 @@ export function populateGameboard(coordinates, gameboard) {
 
 /* Grid/Adjacents Functions */
 
+export function useAdjacent(row, column) {
+    const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
+    console.log(usedCoordinates);
+    const adjacentCells = [
+        [row + 1, column], [row - 1, column],
+        [row, column + 1], [row, column - 1],
+        [row + 1, column + 1], [row + 1, column - 1],
+        [row - 1, column + 1], [row - 1, column - 1],
+    ];
+
+    adjacentCells.forEach((cell) => {
+        if (cell[0] > 9 || cell[0] < 0 || cell [1] > 9 || cell[1] < 0) return;
+
+        usedCoordinates.add(`${cell[0]},${cell[1]}`);
+    });
+}
+
 export function takeAdjacent(row, column, takenCoordinates) {
     const adjacentCells = [
         [row + 1, column], [row - 1, column],
@@ -39,8 +56,10 @@ export function untakeCoordinates(usedCoordinates) {
     shipCells.forEach((cell) => {
         const [row, column] = cell.dataset.coordinate.split(',').map(Number);
 
+        // populate temporaryCoordinates with coordinates to remove
         temporaryCoordinates.add(cell.dataset.coordinate);
         temporaryAdjacents(row, column, skipCells);
+
         temporaryCoordinates.forEach((coordinate) => {
             usedCoordinates.delete(coordinate);
         });

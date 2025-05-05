@@ -1,8 +1,8 @@
 import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
-import { untakeCoordinates } from "./helpers.js";
-import { previewShipPlacement, dragInfo, temporaryCoordinates, placeShip } from "./cell.js";
+import { takeAdjacent, untakeCoordinates, useAdjacent } from "./helpers.js";
+import { previewShipPlacement, dragInfo, temporaryCoordinates, placeShip, getStartingCoords } from "./cell.js";
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -63,6 +63,7 @@ function dragMove(event) {
 };
 
 function dragEnd(event) {
+    const { draggedShip, draggedShipInstance } = dragInfo;
     const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
     const coordinate = getCurrentCoordinate(event);
 
@@ -70,30 +71,62 @@ function dragEnd(event) {
     document.removeEventListener('mouseup', dragEnd);
 
     if (previewShipPlacement(coordinate, usedCoordinates)) {
-        const { draggedShip, draggedShipInstance } = dragInfo;
         // invalid
-        console.log('Invalid!');
 
-        // replace all temporary coords!
         temporaryCoordinates.forEach((coordinate) => {
             usedCoordinates.add(coordinate);
         });
+
         draggedShip.style.removeProperty('outline');
         draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
             cell.style.removeProperty('background-color');
             cell.style.removeProperty('opacity');
         });
-        placeShip(draggedShipInstance, draggedShip);
 
-        // set dragInfo back to default
-        dragInfo.player = null;
-        dragInfo.draggedShip = null;
-        dragInfo.draggedShipInstance = null;
-        dragInfo.draggedCellIndex = null;
-        dragInfo.offsetX = 0;
-        dragInfo.offsetY = 0;
-        console.log(dragInfo);
+        placeShip(draggedShipInstance, draggedShip);
+    } else {
+        // make adjacents invalid in new place
+        updateShipCoordinates(coordinate);
+
+        draggedShip.style.removeProperty('outline');
+        draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
+            cell.style.removeProperty('background-color');
+        });
     }
+
+    // set dragInfo back to default
+    dragInfo.player = null;
+    dragInfo.draggedShip = null;
+    dragInfo.draggedShipInstance = null;
+    dragInfo.draggedCellIndex = null;
+    dragInfo.offsetX = 0;
+    dragInfo.offsetY = 0;
+}
+
+function updateShipCoordinates(coordinate) {
+    const { draggedShip, draggedShipInstance } = dragInfo;
+    const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
+    // and also don't forget to update usedCoordinates
+    
+    const newShipCoordinates = [];
+    for (let i = 0; i < draggedShip.childElementCount; i++) {
+        const currentRow = isVertical ? startingRow + i : startingRow;
+        const currentColumn = isVertical ? startingColumn : startingColumn + i;
+
+        newShipCoordinates.push([currentRow, currentColumn]);
+    }
+
+    draggedShipInstance.coordinates = newShipCoordinates;
+
+    let i = 0;
+    draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
+        cell.dataset.coordinate = draggedShipInstance.coordinates[i];
+        i++;
+    });
+
+    dragInfo.player.gameboard.use(draggedShipInstance.coordinates);
+
+    draggedShipInstance.coordinates.forEach((coordinate) => useAdjacent(coordinate[0], coordinate[1]));
 }
 
 function getCurrentCoordinate(event) {
