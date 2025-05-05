@@ -45,6 +45,9 @@ export function takeAdjacent(row, column, takenCoordinates) {
 }
 
 export function untakeCoordinates(usedCoordinates) {
+    // make sure to clear temporary coordinates beforehand!
+    temporaryCoordinates.clear();
+
     const shipCells = dragInfo.draggedShip.querySelectorAll('.ship-cell');
     const draggedShipCells = dragInfo.draggedShip.querySelectorAll('.ship-cell');
     const skipCells = new Set();
@@ -145,7 +148,7 @@ export function randomizeShips(gameboard) {
                 takenCoordinates.add(`${row},${column}`);
 
                 // add adjacent cells to takenCoordinates
-                takeAdjacent(row, column, takenCoordinates)
+                takeAdjacent(row, column, takenCoordinates);
             }
 
             shipCoordinates.push(shipArray);

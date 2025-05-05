@@ -44,10 +44,10 @@ export function createCells(gameboard, boardData, gameboardObject) {
         columnIndex = 0;
     });
 
-    if (gameboardObject.ships) createShipCells(gameboardObject.ships, gameboard, gameboardObject.usedCoordinates);
+    if (gameboardObject.ships) createShipCells(gameboardObject.ships, gameboard);
 }
 
-export function createShipCells(ships, gameboard, usedCoordinates) {
+export function createShipCells(ships, gameboard) {
     ships.forEach((ship) => {
         const shipDiv = document.createElement('div');
         shipDiv.classList.add('ship-div');
@@ -71,7 +71,7 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
 
         shipDiv.addEventListener('mousedown', (event) => {
             event.preventDefault();
-            shipMousedown(event, usedCoordinates, ship);
+            shipMousedown(event, ship);
         });
     });
 }
@@ -89,6 +89,7 @@ export function previewShipPlacement(coordinate, usedCoordinates) {
     const { draggedShip } = dragInfo;
 
     if (!coordinate) return applyInvalid(draggedShip);
+    if (!usedCoordinates) return;
 
     const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
     let isInvalid = false;
