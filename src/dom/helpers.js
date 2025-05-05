@@ -36,11 +36,9 @@ export function untakeCoordinates(usedCoordinates) {
         skipCells.add(cell.dataset.coordinate);
     });
     
-    // this needs fixing!
     shipCells.forEach((cell) => {
         const [row, column] = cell.dataset.coordinate.split(',').map(Number);
 
-        // make sure to restore if invalid at drop!
         temporaryCoordinates.add(cell.dataset.coordinate);
         temporaryAdjacents(row, column, skipCells);
         temporaryCoordinates.forEach((coordinate) => {
@@ -104,7 +102,6 @@ export function randomizeShips(gameboard) {
             let invalid = false;
 
             // check if placement is invalid
-
             if (isHorizontal && (startingColumn + length) > 10) continue;
             if (!isHorizontal && (startingRow + length) > 10) continue;
 

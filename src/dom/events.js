@@ -2,7 +2,7 @@ import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
 import { untakeCoordinates } from "./helpers.js";
-import { previewShipPlacement, dragInfo } from "./cell.js";
+import { previewShipPlacement, dragInfo, temporaryCoordinates, placeShip } from "./cell.js";
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -31,11 +31,12 @@ export function cellListener(event, playerOne, playerTwo) {
     }
 }
 
-export function shipMousedown(event, usedCoordinates) {
+export function shipMousedown(event, usedCoordinates, ship) {
     // reset these at mouseup after finished!
     dragInfo.player = (event.target.parentNode.parentNode.dataset.player === 'Player One') ? players.playerOne : players.playerTwo;
     dragInfo.draggedShip = event.target.parentNode;
     dragInfo.draggedCellIndex = event.target.dataset.shipIndex;
+    dragInfo.draggedShipInstance = ship;
     const draggedShip = dragInfo.draggedShip;
 
     // makes ship's taken coordinates temporarily available
@@ -52,17 +53,53 @@ export function shipMousedown(event, usedCoordinates) {
 
 function dragMove(event) {
     const draggedShip = dragInfo.draggedShip;
-    const elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
-    const coordinate = elementsAtPoint.find((element) =>  element.classList.contains('column')).dataset.coordinate;
-
     const gridRect = draggedShip.parentNode.getBoundingClientRect();
+    const coordinate = getCurrentCoordinate(event);
+
     draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;
     draggedShip.style.top = `${event.clientY - gridRect.top - dragInfo.offsetY}px`;
 
-    previewShipPlacement(event, coordinate, dragInfo.player.gameboard.usedCoordinates);
+    previewShipPlacement(coordinate, dragInfo.player.gameboard.usedCoordinates);
 };
 
-function dragEnd() {
+function dragEnd(event) {
+    const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
+    const coordinate = getCurrentCoordinate(event);
+
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
+
+    if (previewShipPlacement(coordinate, usedCoordinates)) {
+        const { draggedShip, draggedShipInstance } = dragInfo;
+        // invalid
+        console.log('Invalid!');
+
+        // replace all temporary coords!
+        temporaryCoordinates.forEach((coordinate) => {
+            usedCoordinates.add(coordinate);
+        });
+        draggedShip.style.removeProperty('outline');
+        draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
+            cell.style.removeProperty('background-color');
+            cell.style.removeProperty('opacity');
+        });
+        placeShip(draggedShipInstance, draggedShip);
+
+        // set dragInfo back to default
+        dragInfo.player = null;
+        dragInfo.draggedShip = null;
+        dragInfo.draggedShipInstance = null;
+        dragInfo.draggedCellIndex = null;
+        dragInfo.offsetX = 0;
+        dragInfo.offsetY = 0;
+        console.log(dragInfo);
+    }
+}
+
+function getCurrentCoordinate(event) {
+    const elementsAtPoint = document.elementsFromPoint(event.clientX, event.clientY);
+    const findElement = elementsAtPoint.find((element) =>  element.classList.contains('column'));
+    const coordinate = findElement ? findElement.dataset.coordinate : null;
+
+    return coordinate;
 }

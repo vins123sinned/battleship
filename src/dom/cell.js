@@ -1,14 +1,12 @@
 import { shipMousedown } from "./events.js";
-import { adjacentsClear } from "./helpers.js";
 
 export const dragInfo = {
     player: null,
     draggedShip: null,
+    draggedShipInstance: null,
     draggedCellIndex: null,
-    ghostShip: null,
     offsetX: 0,
     offsetY: 0,
-
 }
 export let temporaryCoordinates = new Set();
 export let isInvalid = false;
@@ -55,12 +53,7 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
         shipDiv.classList.add('ship-div');
         shipDiv.style.position = 'absolute';
 
-        // place ship in correct location
-        const [startingRow, startingColumn] = ship.coordinates[0];
-        shipDiv.style.top = `${(startingRow * 50) - 1}px`;
-        shipDiv.style.left = `${(startingColumn * 50) - 1}px`;
-        shipDiv.style.display = (ship.direction === 'vertical') ? 'block' : 'flex';
-        shipDiv.draggable = 'true';
+        placeShip(ship, shipDiv);
 
         // reminder to update coordinates when dragged!
         let shipIndex = 0;
@@ -78,13 +71,25 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
 
         shipDiv.addEventListener('mousedown', (event) => {
             event.preventDefault();
-            shipMousedown(event, usedCoordinates);
+            shipMousedown(event, usedCoordinates, ship);
         });
     });
 }
 
-export function previewShipPlacement(event, coordinate, usedCoordinates) {
+export function placeShip(ship, shipDiv) {
+    // place ship in correct location
+    const [startingRow, startingColumn] = ship.coordinates[0];
+
+    shipDiv.style.top = `${(startingRow * 50) - 1}px`;
+    shipDiv.style.left = `${(startingColumn * 50) - 1}px`;
+    shipDiv.style.display = (ship.direction === 'vertical') ? 'block' : 'flex';
+}
+
+export function previewShipPlacement(coordinate, usedCoordinates) {
     const { draggedShip, draggedCellIndex } = dragInfo;
+
+    if (!coordinate) return applyInvalid(draggedShip);
+
     const [row, column] =  coordinate.split(',').map(Number);
     const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
     const startingRow = isVertical ? row - draggedCellIndex : row;
@@ -95,32 +100,43 @@ export function previewShipPlacement(event, coordinate, usedCoordinates) {
         const currentRow = isVertical ? startingRow + i : startingRow;
         const currentColumn = isVertical ? startingColumn : startingColumn + i;
 
-        if (usedCoordinates.has(`${currentRow},${currentColumn}`)) {
+        if (currentRow > 9 || currentRow < 0 || currentColumn > 9 || currentColumn < 0 ||
+            usedCoordinates.has(`${currentRow},${currentColumn}`)) {
             isInvalid = true;
             break;
         }
     }
 
     if (isInvalid) {
-        draggedShip.style.outline = '4px solid #d62828';
-        draggedShip.style.zIndex = '999';
-
-        const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
-        draggedShipCells.forEach((cell) => {
-            cell.style.backgroundColor = '#f7dada';
-            cell.style.opacity = '0.5';
-        });
+        applyInvalid(draggedShip);
     } else {
-        draggedShip.style.outline = '4px solid #8ac926';
-        draggedShip.style.top = `${(startingRow * 50) - 1}px`;
-        draggedShip.style.left = `${(startingColumn * 50) - 1}px`;
-
-        const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
-        draggedShipCells.forEach((cell) => {
-            console.log(cell);
-            cell.style.backgroundColor = '#f1fcf7';
-        });
+        applyValid(draggedShip, startingRow, startingColumn);
     }
+
+    return isInvalid;
+}
+
+function applyInvalid(draggedShip) {
+    draggedShip.style.outline = '4px solid #d62828';
+    draggedShip.style.zIndex = '999';
+
+    const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
+    draggedShipCells.forEach((cell) => {
+        cell.style.backgroundColor = '#f7dada';
+        cell.style.opacity = '0.5';
+    });
+}
+
+function applyValid(draggedShip, startingRow, startingColumn) {
+    draggedShip.style.outline = '4px solid #8ac926';
+    draggedShip.style.top = `${(startingRow * 50) - 1}px`;
+    draggedShip.style.left = `${(startingColumn * 50) - 1}px`;
+
+    const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
+    draggedShipCells.forEach((cell) => {
+        console.log(cell);
+        cell.style.backgroundColor = '#f1fcf7';
+    });
 }
 
 // removes unnecessary border between adjacent ship cells
