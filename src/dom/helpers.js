@@ -1,4 +1,5 @@
 import { dragInfo, temporaryCoordinates } from "./cell";
+import { shipDragover, shipDrop } from "./events";
 
 export function chooseRandom(max) {
     return Math.floor(Math.random() * max);
@@ -30,8 +31,10 @@ export function takeAdjacent(row, column, takenCoordinates) {
 export function untakeCoordinates(usedCoordinates) {
     const shipCells = dragInfo.draggedShip.querySelectorAll('.ship-cell');
     
+    // this needs fixing!
+    // double check at drop
     shipCells.forEach((cell) => {
-        const [row, column] = cell.dataset.coordinate.split(',');
+        const [row, column] = cell.dataset.coordinate.split(',').map(Number);
 
         // make sure to restore if invalid at drop!
         temporaryCoordinates.add(cell.dataset.coordinate);
@@ -39,6 +42,16 @@ export function untakeCoordinates(usedCoordinates) {
         temporaryCoordinates.forEach((coordinate) => {
             usedCoordinates.delete(coordinate);
         });
+
+        /*
+        // add cell drag listeners for temporarily available cells
+        if (usedCoordinates && !usedCoordinates.has(cell.dataset.coordinate)) {
+            cell.addEventListener('dragover', (event) => {
+                shipDragover(event, usedCoordinates);
+            });
+            cell.addEventListener('drop', shipDrop);
+        }
+        */
     });
 }
 

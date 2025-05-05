@@ -196,7 +196,8 @@ button {
 .player-option:hover,
 .computer-option:hover,
 .start-button:hover,
-.randomize-button:hover {
+.randomize-button:hover,
+.ship-div:hover {
     cursor: pointer;
 }
 

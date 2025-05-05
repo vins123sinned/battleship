@@ -2,7 +2,7 @@ import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
 import { untakeCoordinates } from "./helpers.js";
-import { previewShipPlacement, dragInfo, temporaryCoordinates, isInvalid } from "./cell.js";
+import { previewShipPlacement, dragInfo } from "./cell.js";
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -31,41 +31,41 @@ export function cellListener(event, playerOne, playerTwo) {
     }
 }
 
-export function shipDragstart(event, usedCoordinates) {
-    dragInfo.draggedShip = event.target;
-    
-    // create ghost ship for dragging over invalid cells
-    const ghost = dragInfo.draggedShip.cloneNode(true);
-    ghost.style.opacity = '0.5';
-    ghost.style.border = '2px solid #c1121f';
-    ghost.style.position = 'absolute';
-    ghost.style.top = '-1000px'; 
-
-    ghost.querySelectorAll('.ship-cell').forEach((cell) => {
-        cell.style.backgroundColor = '#f5cdcd';
-    });
-
-    const rect = event.target.getBoundingClientRect();
-    const offsetX = event.clientX - rect.left;
-    const offsetY = event.clientY - rect.top;
-
-    document.body.appendChild(ghost);
-    event.dataTransfer.setDragImage(ghost, offsetX, offsetY);
-
-    setTimeout(() => {
-        document.body.removeChild(ghost);
-    }, 0);
+export function shipMousedown(event, usedCoordinates) {
+    dragInfo.draggedShip = event.target.parentNode;
+    const draggedShip = dragInfo.draggedShip;
 
     // makes ship's taken coordinates temporarily available
     untakeCoordinates(usedCoordinates);
-    console.log(temporaryCoordinates)
+
+    const rect = draggedShip.getBoundingClientRect();
+    
+    dragInfo.offsetX = event.clientX - rect.left;
+    dragInfo.offsetY = event.clientY - rect.top;
+
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('mouseup', dragEnd);
 }
 
-export function shipDragover(event, gameboardObject) {
+function dragMove(event) {
+    const draggedShip = dragInfo.draggedShip;
+
+    const gridRect = draggedShip.parentNode.getBoundingClientRect();
+    draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;
+    draggedShip.style.top = `${event.clientY - gridRect.top - dragInfo.offsetY}px`;
+};
+
+function dragEnd() {
+    document.removeEventListener('mousemove', dragMove);
+    document.removeEventListener('mouseup', dragEnd);
+}
+
+export function shipDragover(event, usedCoordinates) {
     event.preventDefault();
+
+    console.log(event.target.dataset.coordinate);
     
-    previewShipPlacement(event.target.dataset.coordinate, gameboardObject.usedCoordinates);
-    console.log(isInvalid);
+    previewShipPlacement(event, event.target.dataset.coordinate, usedCoordinates);
 }
 
 export function shipDrop(event) {

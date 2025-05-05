@@ -1,8 +1,11 @@
-import { shipDragover, shipDragstart, shipDrop } from "./events.js";
+import { shipMousedown } from "./events.js";
 
 export const dragInfo = {
     draggedShip: null,
     draggedCellIndex: null,
+    ghostShip: null,
+    offsetX: 0,
+    offsetY: 0,
 
 }
 export let temporaryCoordinates = new Set();
@@ -35,13 +38,6 @@ export function createCells(gameboard, boardData, gameboardObject) {
 
             gameboard.appendChild(columnDiv);
             columnIndex++;
-
-            if (gameboardObject.usedCoordinates && !gameboardObject.usedCoordinates.has(columnDiv.dataset.coordinate)) {
-                columnDiv.addEventListener('dragover', (event) => {
-                    shipDragover(event, gameboardObject);
-                });
-                columnDiv.addEventListener('drop', shipDrop);
-            }
         });
 
         rowIndex++;
@@ -74,36 +70,30 @@ export function createShipCells(ships, gameboard, usedCoordinates) {
 
             shipDiv.appendChild(shipCell);
             shipIndex++;
-
-            shipCell.addEventListener('mousedown', () => {
-                dragInfo.draggedCellIndex = shipCell.dataset.shipIndex;
-            });
         });
 
         gameboard.appendChild(shipDiv);
 
-        shipDiv.addEventListener('dragstart', (event) => {
-            shipDragstart(event, usedCoordinates);
+        shipDiv.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            shipMousedown(event, usedCoordinates);
         });
     });
 }
 
-export function previewShipPlacement(coordinate, usedCoordinates) {
+export function previewShipPlacement(event, coordinate, usedCoordinates) {
     const [row, column] =  coordinate.split(',').map(Number);
     const isVertical = (window.getComputedStyle(dragInfo.draggedShip).display === 'block') ? true : false;
     const startingRow = isVertical ? row - dragInfo.draggedCellIndex : row;
     const startingColumn = isVertical? column : column - dragInfo.draggedCellIndex;
 
-    if (dragInfo.draggedShip.childElementCount > 1) {
-        // check if enough space to place and is valid 
-        for (let i = 0; i < dragInfo.draggedShip.childElementCount; i++) {
-            const currentRow = isVertical ? startingRow + i : startingRow;
-            const currentColumn = isVertical ? startingColumn : startingColumn + i;
+    for (let i = 0; i < dragInfo.draggedShip.childElementCount; i++) {
+        const currentRow = isVertical ? startingRow + i : startingRow;
+        const currentColumn = isVertical ? startingColumn : startingColumn + i;
 
-            if (usedCoordinates.has(`${currentRow},${currentColumn}`)) {
-                isInvalid = true;
-                break;
-            }
+        if (usedCoordinates.has(`${currentRow},${currentColumn}`)) {
+            isInvalid = true;
+            break;
         }
     }
 }
