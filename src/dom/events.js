@@ -32,17 +32,17 @@ export function cellListener(event, playerOne, playerTwo) {
 }
 
 export function shipMousedown(event, ship) {
-    // reset these at mouseup after finished!
     dragInfo.player = (event.target.parentNode.parentNode.dataset.player === 'Player One') ? players.playerOne : players.playerTwo;
     dragInfo.draggedShip = event.target.parentNode;
     dragInfo.draggedCellIndex = event.target.dataset.shipIndex;
     dragInfo.draggedShipInstance = ship;
+
     const draggedShip = dragInfo.draggedShip;
+    const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
+    const rect = draggedShip.getBoundingClientRect();
 
     // makes ship's taken coordinates temporarily available
-    untakeCoordinates(dragInfo.player.gameboard.usedCoordinates);
-
-    const rect = draggedShip.getBoundingClientRect();
+    untakeCoordinates(usedCoordinates);
     
     dragInfo.offsetX = event.clientX - rect.left;
     dragInfo.offsetY = event.clientY - rect.top;
@@ -52,7 +52,6 @@ export function shipMousedown(event, ship) {
 }
 
 function dragMove(event) {
-    console.log(dragInfo.player.gameboard.usedCoordinates);
     const draggedShip = dragInfo.draggedShip;
     const gridRect = draggedShip.parentNode.getBoundingClientRect();
     const coordinate = getCurrentCoordinate(event);
@@ -60,7 +59,6 @@ function dragMove(event) {
     draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;
     draggedShip.style.top = `${event.clientY - gridRect.top - dragInfo.offsetY}px`;
 
-    console.log(dragInfo.player.gameboard.usedCoordinates.has(coordinate))
     previewShipPlacement(coordinate, dragInfo.player.gameboard.usedCoordinates);
 };
 
@@ -71,36 +69,38 @@ function dragEnd(event) {
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
 
-    if (previewShipPlacement(coordinate, dragInfo.player.gameboard.usedCoordinates)) {
+    if (previewShipPlacement(coordinate)) {
         // invalid
         updateUsedCoordinates(draggedShip);
-
-        draggedShip.style.removeProperty('outline');
-        draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
-            cell.style.removeProperty('background-color');
-            cell.style.removeProperty('opacity');
-        });
-
+        removeDragStyles(draggedShip);
         placeShip(draggedShipInstance, draggedShip);
     } else {
         // make adjacents invalid in new place
         updateShipCoordinates(coordinate);
-
-        draggedShip.style.removeProperty('outline');
-        draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
-            cell.style.removeProperty('background-color');
-        });
-
+        removeDragStyles(draggedShip);
         updateUsedCoordinates(draggedShip);
     }
 
-    // set dragInfo back to default
-    dragInfo.player = null;
-    dragInfo.draggedShip = null;
-    dragInfo.draggedShipInstance = null;
-    dragInfo.draggedCellIndex = null;
-    dragInfo.offsetX = 0;
-    dragInfo.offsetY = 0;
+    resetDragInfo();
+}
+
+function updateShipCoordinates(coordinate) {
+    const { draggedShip, draggedShipInstance } = dragInfo;
+    const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
+    const newShipCoordinates = [];
+
+    for (let i = 0; i < draggedShip.childElementCount; i++) {
+        const currentRow = isVertical ? startingRow + i : startingRow;
+        const currentColumn = isVertical ? startingColumn : startingColumn + i;
+
+        newShipCoordinates.push([currentRow, currentColumn]);
+    }
+
+    draggedShipInstance.coordinates = newShipCoordinates;
+
+    draggedShip.querySelectorAll('.ship-cell').forEach((cell, index) => {
+        cell.dataset.coordinate = draggedShipInstance.coordinates[index];
+    });
 }
 
 function updateUsedCoordinates(draggedShip) {
@@ -114,24 +114,11 @@ function updateUsedCoordinates(draggedShip) {
     });
 }
 
-function updateShipCoordinates(coordinate) {
-    const { draggedShip, draggedShipInstance } = dragInfo;
-    const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
-    
-    const newShipCoordinates = [];
-    for (let i = 0; i < draggedShip.childElementCount; i++) {
-        const currentRow = isVertical ? startingRow + i : startingRow;
-        const currentColumn = isVertical ? startingColumn : startingColumn + i;
-
-        newShipCoordinates.push([currentRow, currentColumn]);
-    }
-
-    draggedShipInstance.coordinates = newShipCoordinates;
-
-    let i = 0;
+function removeDragStyles(draggedShip) {
+    draggedShip.style.removeProperty('outline');
     draggedShip.querySelectorAll('.ship-cell').forEach((cell) => {
-        cell.dataset.coordinate = draggedShipInstance.coordinates[i];
-        i++;
+        cell.style.removeProperty('background-color');
+        cell.style.removeProperty('opacity');
     });
 }
 
@@ -141,4 +128,14 @@ function getCurrentCoordinate(event) {
     const coordinate = findElement ? findElement.dataset.coordinate : null;
 
     return coordinate;
+}
+
+function resetDragInfo() {
+    // set dragInfo back to default
+    dragInfo.player = null;
+    dragInfo.draggedShip = null;
+    dragInfo.draggedShipInstance = null;
+    dragInfo.draggedCellIndex = null;
+    dragInfo.offsetX = 0;
+    dragInfo.offsetY = 0;
 }

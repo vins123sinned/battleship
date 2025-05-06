@@ -44,10 +44,10 @@ export function createCells(gameboard, boardData, gameboardObject) {
         columnIndex = 0;
     });
 
-    if (gameboardObject.ships) createShipCells(gameboardObject.ships, gameboard);
+    if (gameboardObject.ships) createShips(gameboardObject.ships, gameboard);
 }
 
-export function createShipCells(ships, gameboard) {
+export function createShips(ships, gameboard) {
     ships.forEach((ship) => {
         const shipDiv = document.createElement('div');
         shipDiv.classList.add('ship-div');
@@ -55,7 +55,6 @@ export function createShipCells(ships, gameboard) {
 
         placeShip(ship, shipDiv);
 
-        // reminder to update coordinates when dragged!
         let shipIndex = 0;
         ship.coordinates.forEach((coordinate) => {
             const shipCell = document.createElement('div');
@@ -85,11 +84,12 @@ export function placeShip(ship, shipDiv) {
     shipDiv.style.display = (ship.direction === 'vertical') ? 'block' : 'flex';
 }
 
-export function previewShipPlacement(coordinate, usedCoordinates) {
+export function previewShipPlacement(coordinate) {
     const { draggedShip } = dragInfo;
+    const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
 
-    if (!coordinate) return applyInvalid(draggedShip);
     if (!usedCoordinates) return;
+    if (!coordinate) return applyInvalid(draggedShip);
 
     const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
     let isInvalid = false;
@@ -116,7 +116,6 @@ export function previewShipPlacement(coordinate, usedCoordinates) {
 
 export function getStartingCoords(coordinate) {
     const { draggedShip, draggedCellIndex } = dragInfo;
-
     const [row, column] =  coordinate.split(',').map(Number);
     const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
     const startingRow = isVertical ? row - draggedCellIndex : row;
@@ -153,7 +152,6 @@ export function mergeShipCells(gameboard) {
     
     shipCells.forEach((cell) => {
         const shipCoordinate = cell.dataset.coordinate.split(',');
-
         const upCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
         const downCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
         const rightCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);

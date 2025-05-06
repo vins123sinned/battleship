@@ -1,4 +1,5 @@
 import { createCells, createShipCells, mergeShipCells } from "./cell";
+import { populateGameboard, randomizeShips } from "./helpers";
 
 export function displayBoard(player) {
     const boardData = player.gameboard.board;
@@ -84,6 +85,7 @@ export function removeEmptyBoard() {
 }
 
 function addRandomizeButton(player, gameboardContainer) {
+    const gameboard = player.gameboard;
     const randomizeButton = document.createElement('button');
     const randomizeIcon = document.createElement('span');
 
@@ -100,8 +102,8 @@ function addRandomizeButton(player, gameboardContainer) {
     randomizeButton.addEventListener('click', () => {
         player.gameboard.clearBoard();
 
-        const shipCoordinates = randomizeShips();
-        populateGameboard(shipCoordinates, player.gameboard);
+        const shipCoordinates = randomizeShips(gameboard);
+        populateGameboard(shipCoordinates, gameboard);
 
         updateBoard(player);
     });

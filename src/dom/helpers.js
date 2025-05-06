@@ -14,7 +14,6 @@ export function populateGameboard(coordinates, gameboard) {
 
 export function useAdjacent(row, column) {
     const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
-    console.log(usedCoordinates);
     const adjacentCells = [
         [row + 1, column], [row - 1, column],
         [row, column + 1], [row, column - 1],
@@ -139,23 +138,28 @@ export function randomizeShips(gameboard) {
 
             if (invalid) continue;
 
-            const shipArray = [];
-            for (let i = 0; i < length; i++) {
-                const row = isHorizontal ? startingRow : startingRow + i;
-                const column = isHorizontal ? startingColumn + i : startingColumn;
-
-                shipArray.push([row, column]);
-                takenCoordinates.add(`${row},${column}`);
-
-                // add adjacent cells to takenCoordinates
-                takeAdjacent(row, column, takenCoordinates);
-            }
-
-            shipCoordinates.push(shipArray);
+            shipCoordinates.push(createShipItem(startingRow, startingColumn, isHorizontal, takenCoordinates, length));
             break;
         }
     });
     
     gameboard.use(takenCoordinates);
-    return shipCoordinates
+    return shipCoordinates;
+}
+
+function createShipItem(startingRow, startingColumn, isHorizontal, takenCoordinates, length) {
+    const shipArray = [];
+
+    for (let i = 0; i < length; i++) {
+        const row = isHorizontal ? startingRow : startingRow + i;
+        const column = isHorizontal ? startingColumn + i : startingColumn;
+
+        shipArray.push([row, column]);
+        takenCoordinates.add(`${row},${column}`);
+
+        // add adjacent cells to takenCoordinates
+        takeAdjacent(row, column, takenCoordinates);
+    }
+
+    return shipArray;
 }
