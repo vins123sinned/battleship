@@ -61,7 +61,8 @@ button {
     height: calc(500px / 10);
 }
 
-.hit-column {
+.hit-column,
+.ship-hit {
     background-color: #ffafaf;
     border-color: #fe4f4f;
 }
@@ -71,7 +72,8 @@ button {
 }
 
 .miss-column::after,
-.hit-column .material-symbols-outlined {
+.hit-column .material-symbols-outlined,
+.ship-hit .material-symbols-outlined {
     height: 100%;
     content: ' · ';
     font-size: 2rem;

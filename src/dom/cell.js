@@ -13,7 +13,7 @@ export const dragInfo = {
 export let temporaryCoordinates = new Set();
 export let isInvalid = false;
 
-export function createCells(gameboard, boardData, gameboardObject) {
+export function createCells(gameboard, boardData, gameboardObject, playerName) {
     let rowIndex = 0;
     let columnIndex = 0;
 
@@ -24,24 +24,13 @@ export function createCells(gameboard, boardData, gameboardObject) {
             columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
             columnDiv.classList.add('column');
 
-            // temporary
-            //columnDiv.style.zIndex = '999';
-
-            // this currently not working
             if (gameboardObject.attacks && gameboardObject.isAlreadyAttacked(`${rowIndex},${columnIndex}`)) {
                 // cell already hit
                 const attackInfo = gameboardObject.attacks.find((object) => object.coordinate === `${rowIndex},${columnIndex}`);
+                
+                columnDiv.classList.add((attackInfo.result === 'hit') ? 'hit-column' : 'miss-column');
 
-                if (attackInfo.result === 'hit') {
-                    const closeIcon = document.createElement('span');
-                    closeIcon.classList.add('material-symbols-outlined');
-                    closeIcon.textContent = 'close';
-
-                    columnDiv.classList.add('hit-column');
-                    columnDiv.appendChild(closeIcon);
-                } else {   
-                    columnDiv.classList.add('miss-column');
-                }
+                if (columnDiv.classList.contains('hit-column')) styleHit(columnDiv);
             }
 
             gameboard.appendChild(columnDiv);
@@ -52,7 +41,7 @@ export function createCells(gameboard, boardData, gameboardObject) {
         columnIndex = 0;
     });
 
-    if (gameboardObject.ships) createShips(gameboardObject.ships, gameboard);
+    if (gameboardObject.ships && playerName !== 'Computer') createShips(gameboardObject.ships, gameboard);
 }
 
 export function createShips(ships, gameboard) {
@@ -64,11 +53,20 @@ export function createShips(ships, gameboard) {
         placeShip(ship, shipDiv);
 
         let shipIndex = 0;
+        shipDiv.style.outline = '4px solid #fe4f4f';
         ship.coordinates.forEach((coordinate) => {
             const shipCell = document.createElement('div');
+            const cell = document.querySelector(`[data-coordinate="${`${coordinate[0]},${coordinate[1]}`}"]`)
+
             shipCell.classList.add('ship-cell');
             shipCell.dataset.coordinate = `${coordinate[0]},${coordinate[1]}`;
             shipCell.dataset.shipIndex = shipIndex;
+
+            if (!cell.classList.contains('hit-column')) shipDiv.style.removeProperty('outline');
+            if (cell.classList.contains('hit-column')) {
+                shipCell.classList.add('ship-hit');
+                styleHit(shipCell);
+            }
 
             shipDiv.appendChild(shipCell);
             shipIndex++;
@@ -83,6 +81,14 @@ export function createShips(ships, gameboard) {
 
         shipDiv.addEventListener('click', switchShipDirection);
     });
+}
+
+function styleHit(cell) {
+    const closeIcon = document.createElement('span');
+    closeIcon.classList.add('material-symbols-outlined');
+    closeIcon.textContent = 'close';
+
+    cell.appendChild(closeIcon);
 }
 
 export function placeShip(ship, shipDiv) {

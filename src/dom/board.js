@@ -1,4 +1,4 @@
-import { createCells, createShipCells, mergeShipCells } from "./cell";
+import { createCells, createEnemyCells, createShipCells, mergeShipCells } from "./cell";
 import { populateGameboard, randomizeShips } from "./helpers";
 
 export function displayBoard(player) {
@@ -24,7 +24,7 @@ export function displayBoard(player) {
         addRandomizeButton(gameboard, player, gameboardContainer);
     }
 
-    createCells(gameboard, boardData, player.gameboard);
+    createCells(gameboard, boardData, player.gameboard, player.name);
 }
 
 export function displayEmptyBoard(rows = 10, columns = 10) {
@@ -76,7 +76,7 @@ export function updateBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.replaceChildren();
 
-    createCells(gameboard, player.gameboard.board, player.gameboard);
+    createCells(gameboard, player.gameboard.board, player.gameboard, player.name);
 }
 
 export function removeEmptyBoard() {
