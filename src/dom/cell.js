@@ -118,7 +118,7 @@ export function previewShipPlacement(coordinate) {
     return isInvalid;
 }
 
-function applyInvalid(draggedShip) {
+export function applyInvalid(draggedShip) {
     draggedShip.style.outline = '4px solid #d62828';
     draggedShip.style.zIndex = '999';
 

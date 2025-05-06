@@ -2,7 +2,7 @@ import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
 import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates } from "./helpers.js";
-import { previewShipPlacement, dragInfo, placeShip } from "./cell.js";
+import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -159,8 +159,7 @@ export function switchShipDirection(event) {
         updateShipSwitchCoordinates();
         placeShip(draggedShipInstance, draggedShip);
     } else {
-        // style to let user know it's not possible (PAS BIEN)
-        return console.log('no!')
+        invalidSwitchShake();
     }
 
     resetDragInfo();
@@ -183,4 +182,17 @@ function updateShipSwitchCoordinates() {
     draggedShip.querySelectorAll('.ship-cell').forEach((cell, index) => {
         cell.dataset.coordinate = draggedShipInstance.coordinates[index];
     });
+}
+
+function invalidSwitchShake() {
+    // style to let user know it's not possible (PAS BIEN)
+    const { draggedShip } = dragInfo;
+
+    draggedShip.classList.add('shake');
+    applyInvalid(draggedShip);
+
+    setTimeout(() => {
+        draggedShip.classList.remove('shake');
+        removeDragStyles(draggedShip);
+    }, 200);
 }
