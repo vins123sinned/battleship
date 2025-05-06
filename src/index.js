@@ -13,7 +13,6 @@ export function gameController() {
     displayBoard(players.playerOne);
     displayEmptyBoard();
 
-    disableBoard(players.playerOne);
     gameStart();
 }
 

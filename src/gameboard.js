@@ -99,7 +99,6 @@ export class Gameboard {
   use(coordinates) {
     coordinates.forEach((coordinate) => {
       this.usedCoordinates.add(coordinate);
-      console.log(this.usedCoordinates)
     })
   }
 }

@@ -1,8 +1,8 @@
 import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
-import { takeAdjacent, untakeCoordinates } from "./helpers.js";
-import { previewShipPlacement, dragInfo, placeShip, getStartingCoords } from "./cell.js";
+import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates } from "./helpers.js";
+import { previewShipPlacement, dragInfo, placeShip } from "./cell.js";
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -56,6 +56,9 @@ function dragMove(event) {
     const gridRect = draggedShip.parentNode.getBoundingClientRect();
     const coordinate = getCurrentCoordinate(event);
 
+    // prevent click (switchShipDirection) from executing
+    dragInfo.isDragging = true;
+
     draggedShip.style.left = `${event.clientX - gridRect.left - dragInfo.offsetX}px`;
     draggedShip.style.top = `${event.clientY - gridRect.top - dragInfo.offsetY}px`;
 
@@ -69,7 +72,7 @@ function dragEnd(event) {
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
 
-    if (previewShipPlacement(coordinate)) {
+    if (!coordinate || previewShipPlacement(coordinate)) {
         // invalid
         updateUsedCoordinates(draggedShip);
         removeDragStyles(draggedShip);
@@ -80,8 +83,6 @@ function dragEnd(event) {
         removeDragStyles(draggedShip);
         updateUsedCoordinates(draggedShip);
     }
-
-    resetDragInfo();
 }
 
 function updateShipCoordinates(coordinate) {
@@ -138,4 +139,48 @@ function resetDragInfo() {
     dragInfo.draggedCellIndex = null;
     dragInfo.offsetX = 0;
     dragInfo.offsetY = 0;
+    dragInfo.isDragging = false;
+}
+
+export function switchShipDirection(event) {
+    event.preventDefault();
+
+    if (dragInfo.isDragging) {
+        event.stopImmediatePropagation();
+        resetDragInfo();
+        return;
+    }
+
+    if (switchIsPossible()) {
+        // update ship coordinates
+        const { draggedShip, draggedShipInstance } = dragInfo;
+
+        draggedShipInstance.direction = (draggedShipInstance.direction === 'vertical') ? 'horizontal' : 'vertical';
+        updateShipSwitchCoordinates();
+        placeShip(draggedShipInstance, draggedShip);
+    } else {
+        // style to let user know it's not possible (PAS BIEN)
+        return console.log('no!')
+    }
+
+    resetDragInfo();
+}
+
+function updateShipSwitchCoordinates() {
+    const { draggedShip, draggedShipInstance } = dragInfo;
+    const [startingRow, startingColumn, isVertical] = getStartingSwitchCoords();
+    const newShipCoordinates = [];
+
+    for (let i = 0; i < draggedShip.childElementCount; i++) {
+        const currentRow = isVertical ? startingRow + i : startingRow;
+        const currentColumn = isVertical ? startingColumn : startingColumn + i;
+
+        newShipCoordinates.push([currentRow, currentColumn]);
+    }
+
+    draggedShipInstance.coordinates = newShipCoordinates;
+
+    draggedShip.querySelectorAll('.ship-cell').forEach((cell, index) => {
+        cell.dataset.coordinate = draggedShipInstance.coordinates[index];
+    });
 }

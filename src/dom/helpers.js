@@ -163,3 +163,46 @@ function createShipItem(startingRow, startingColumn, isHorizontal, takenCoordina
 
     return shipArray;
 }
+
+export function getStartingCoords(coordinate) {
+    const { draggedCellIndex, draggedShipInstance } = dragInfo;
+    const [row, column] =  coordinate.split(',').map(Number);
+    const isVertical = (draggedShipInstance.direction === 'vertical') ? true : false;
+    const startingRow = isVertical ? row - draggedCellIndex : row;
+    const startingColumn = isVertical? column : column - draggedCellIndex;
+
+    return [startingRow, startingColumn, isVertical];
+}
+
+/* Ship Switch Direction */
+export function switchIsPossible() {
+    const { draggedShip, draggedShipInstance } = dragInfo;
+    const usedCoordinates = dragInfo.player.gameboard.usedCoordinates;
+    const startingCoordinate = draggedShip.firstChild.dataset.coordinate;
+    const [ startingRow, startingColumn ] = startingCoordinate.split(',').map(Number);
+    const isVertical = (draggedShipInstance.direction === 'vertical') ? false : true;
+    let valid = true;
+
+    untakeCoordinates(usedCoordinates);
+
+    for (let i = 0; i < draggedShip.childElementCount; i++) {
+        const currentRow = isVertical ? startingRow + i : startingRow;
+        const currentColumn = isVertical ? startingColumn : startingColumn + i;
+
+        if (currentRow > 9 || currentRow < 0 || currentColumn > 9 || currentColumn < 0 ||
+            usedCoordinates.has(`${currentRow},${currentColumn}`)) {
+            valid = false;
+            break;
+        }
+    }
+
+    return valid;
+}
+
+export function getStartingSwitchCoords() {
+    const { draggedShipInstance } = dragInfo;
+    const [row, column] =  draggedShipInstance.coordinates[0];
+    const isVertical = (draggedShipInstance.direction === 'vertical') ? true : false;
+
+    return [row, column, isVertical];
+}

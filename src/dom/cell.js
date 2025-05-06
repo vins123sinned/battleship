@@ -1,4 +1,5 @@
-import { shipMousedown } from "./events.js";
+import { shipMousedown, switchShipDirection } from "./events.js";
+import { getStartingCoords } from "./helpers.js";
 
 export const dragInfo = {
     player: null,
@@ -7,6 +8,7 @@ export const dragInfo = {
     draggedCellIndex: null,
     offsetX: 0,
     offsetY: 0,
+    isDragging: false,
 }
 export let temporaryCoordinates = new Set();
 export let isInvalid = false;
@@ -72,6 +74,8 @@ export function createShips(ships, gameboard) {
             event.preventDefault();
             shipMousedown(event, ship);
         });
+
+        shipDiv.addEventListener('click', switchShipDirection);
     });
 }
 
@@ -112,16 +116,6 @@ export function previewShipPlacement(coordinate) {
     }
 
     return isInvalid;
-}
-
-export function getStartingCoords(coordinate) {
-    const { draggedShip, draggedCellIndex } = dragInfo;
-    const [row, column] =  coordinate.split(',').map(Number);
-    const isVertical = (window.getComputedStyle(draggedShip).display === 'block') ? true : false;
-    const startingRow = isVertical ? row - draggedCellIndex : row;
-    const startingColumn = isVertical? column : column - draggedCellIndex;
-
-    return [startingRow, startingColumn, isVertical];
 }
 
 function applyInvalid(draggedShip) {
