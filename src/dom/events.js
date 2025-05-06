@@ -1,7 +1,7 @@
 import { players } from "../index.js";
 import { updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver } from "./dom";
-import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates } from "./helpers.js";
+import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
 export function cellClickHandler(event) {
@@ -12,9 +12,9 @@ export function cellListener(event, playerOne, playerTwo) {
     if (event.target.classList.contains('column')) {
         const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
         const currentBoard = currentPlayer.gameboard;
-        const coordinate = event.target.dataset.coordinate.split(',').map(Number);
+        const coordinate = event.target.dataset.coordinate;
 
-        if (currentBoard.isAlreadyAttacked(coordinate)) return;
+        if (currentBoard.isAlreadyAttacked(coordinate)) return console.log('already attacked!');
         currentBoard.receiveAttack(coordinate);
 
         updateBoard(currentPlayer);
@@ -78,15 +78,16 @@ function dragEnd(event) {
         removeDragStyles(draggedShip);
         placeShip(draggedShipInstance, draggedShip);
     } else {
-        // make adjacents invalid in new place
+        // valid
         updateShipCoordinates(coordinate);
         removeDragStyles(draggedShip);
         updateUsedCoordinates(draggedShip);
+        updateBoardData();
     }
 }
 
 function updateShipCoordinates(coordinate) {
-    const { draggedShip, draggedShipInstance } = dragInfo;
+    const { draggedShip, draggedShipInstance, player } = dragInfo;
     const [startingRow, startingColumn, isVertical] = getStartingCoords(coordinate);
     const newShipCoordinates = [];
 
@@ -158,6 +159,7 @@ export function switchShipDirection(event) {
         draggedShipInstance.direction = (draggedShipInstance.direction === 'vertical') ? 'horizontal' : 'vertical';
         updateShipSwitchCoordinates();
         placeShip(draggedShipInstance, draggedShip);
+        updateBoardData();
     } else {
         invalidSwitchShake();
     }

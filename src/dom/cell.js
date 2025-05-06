@@ -24,8 +24,14 @@ export function createCells(gameboard, boardData, gameboardObject) {
             columnDiv.dataset.coordinate = `${rowIndex},${columnIndex}`;
             columnDiv.classList.add('column');
 
-            if (gameboardObject.attacks && gameboardObject.attacks.find((attack) => attack.coordinate[0] === rowIndex && attack.coordinate[1] === columnIndex)) {
+            // temporary
+            //columnDiv.style.zIndex = '999';
+
+            // this currently not working
+            if (gameboardObject.attacks && gameboardObject.isAlreadyAttacked(`${rowIndex},${columnIndex}`)) {
                 // cell already hit
+                const attackInfo = gameboardObject.attacks.find((object) => object.coordinate === `${rowIndex},${columnIndex}`);
+
                 if (attackInfo.result === 'hit') {
                     const closeIcon = document.createElement('span');
                     closeIcon.classList.add('material-symbols-outlined');
@@ -137,34 +143,5 @@ function applyValid(draggedShip, startingRow, startingColumn) {
     const draggedShipCells = draggedShip.querySelectorAll('.ship-cell');
     draggedShipCells.forEach((cell) => {
         cell.style.backgroundColor = '#f1fcf7';
-    });
-}
-
-// removes unnecessary border between adjacent ship cells
-export function mergeShipCells(gameboard) {
-    const shipCells = gameboard.querySelectorAll('.ship-column');
-    
-    shipCells.forEach((cell) => {
-        const shipCoordinate = cell.dataset.coordinate.split(',');
-        const upCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) + 1},${shipCoordinate[1]}"]`);
-        const downCell = gameboard.querySelector(`[data-coordinate="${parseInt(shipCoordinate[0]) - 1},${shipCoordinate[1]}"]`);
-        const rightCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) + 1}"]`);
-        const leftCell = gameboard.querySelector(`[data-coordinate="${shipCoordinate[0]},${parseInt(shipCoordinate[1]) - 1}"]`);
-
-        if (upCell && upCell.classList.contains('ship-column')) {
-            cell.style.borderBottom = 'none';
-        }
-
-        if (downCell && downCell.classList.contains('ship-column')) {
-            cell.style.borderTop = 'none';
-        }
-
-        if (rightCell && rightCell.classList.contains('ship-column')) {
-            cell.style.borderRight = 'none';
-        }
-
-        if (leftCell && leftCell.classList.contains('ship-column')) {
-            cell.style.borderLeft = 'none';
-        }
     });
 }

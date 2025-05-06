@@ -45,7 +45,7 @@ export function displayEmptyBoard(rows = 10, columns = 10) {
 
     // creates necessary data to output empty grid
     const boardData = [];
-    const attacks  = [];
+    const attacks  = new Set();
     
     for (let r = 0; r < rows; r++) {
         const row = [];
@@ -76,7 +76,7 @@ export function updateBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
     gameboard.replaceChildren();
 
-    createCells(gameboard, player.gameboard.board, player.gameboard.attacks);
+    createCells(gameboard, player.gameboard.board, player.gameboard);
 }
 
 export function removeEmptyBoard() {
@@ -99,6 +99,7 @@ function addRandomizeButton(gameboard, player, gameboardContainer) {
     gameboardContainer.appendChild(randomizeButton);
 
     randomizeButton.addEventListener('click', () => {
+        // move this to events.js later!
         player.gameboard.clearBoard();
         gameboard.replaceChildren();
 

@@ -1,5 +1,7 @@
 import { dragInfo, temporaryCoordinates } from "./cell";
 
+/* Randomize Button */
+
 export function chooseRandom(max) {
     return Math.floor(Math.random() * max);
 }
@@ -205,4 +207,31 @@ export function getStartingSwitchCoords() {
     const isVertical = (draggedShipInstance.direction === 'vertical') ? true : false;
 
     return [row, column, isVertical];
+}
+
+
+export function updateBoardData() {
+    // updates gameboard.board and gameboard.ships
+    const { player } = dragInfo;
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    const newShipCoordinates = [];
+
+    const shipDivs = gameboard.querySelectorAll('.ship-div');
+    shipDivs.forEach((shipDiv) => {
+        const shipCells = shipDiv.querySelectorAll('.ship-cell'); 
+        const shipRow = [];
+        
+        shipCells.forEach((cell) => {
+            const [ row, column ] = cell.dataset.coordinate.split(',').map(Number);
+            shipRow.push([row, column]);
+        })
+
+        newShipCoordinates.push(shipRow);
+    });
+
+    player.gameboard.board = null;
+    player.gameboard.ships = [];
+    player.gameboard.createBoard();
+
+    populateGameboard(newShipCoordinates, player.gameboard);
 }

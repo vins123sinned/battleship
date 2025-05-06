@@ -1,3 +1,5 @@
+import { dragInfo } from "./dom/cell.js";
+import { randomizeShips } from "./dom/helpers.js";
 import { Ship } from "./ship.js";
 
 export class Gameboard {
@@ -8,7 +10,7 @@ export class Gameboard {
     this.board = null;
     this.ships = [];
     this.attacks = [];
-    this.availableMoves = [];
+    this.availableMoves = new Set();
     this.usedCoordinates = new Set();
 
     this.createBoard();
@@ -32,16 +34,18 @@ export class Gameboard {
   populateMoves() {
     for (let r = 0; r < this.rows; r++) {
       for (let c = 0; c < this.columns; c++) {
-        this.availableMoves.push([r, c]);
+        this.availableMoves.add(`${r},${c}`);
       }
     }
   }
 
   placeShip(coordinates) {
+    // check and add correct ship direction
     let direction = 'vertical';
     if (coordinates.length > 1) {
       if (coordinates[0][0] + 1 !== coordinates[1][0]) direction = 'horizontal';
     }
+
     const newShip = new Ship(coordinates.length, coordinates, direction);
 
     coordinates.forEach((coordinate) => {
@@ -52,12 +56,11 @@ export class Gameboard {
   }
 
   receiveAttack(coordinate) {
-    // checks if attack was already received
-    if (this.attacks.some((attack) => attack.coordinate[0] === coordinate[0] && attack.coordinate[1] === coordinate[1])) return 'Already attacked!';
+    const [ row, column ] = coordinate.split(',').map(Number);
 
-    if (this.board[coordinate[0]][coordinate[1]].length !== 0) {
+    if (this.board[row][column].length !== 0) {
       // invokes hit method on ship that occupies the coordinates
-      this.board[coordinate[0]][coordinate[1]].hit();
+      this.board[row][column].hit();
 
       this.attacks.push({
         coordinate,
@@ -72,14 +75,18 @@ export class Gameboard {
   }
 
   isAlreadyAttacked(coordinate) {
-    return this.attacks.some((attack) => attack.coordinate[0] === coordinate[0] && attack.coordinate[1] === coordinate[1]);
+    return this.attacks.some((attack) => attack.coordinate === coordinate);
   }
 
   chooseRandomCoordinate() {
-    const randomIndex = Math.floor(Math.random() * this.availableMoves.length);
-    const coordinate = this.availableMoves.splice(randomIndex, 1);
+    const moves = Array.from(this.availableMoves);
+    const randomIndex = Math.floor(Math.random() * moves.length);
+    const coordinate = moves[randomIndex];
 
-    return coordinate[0];
+    this.availableMoves.delete(coordinate);
+    
+    // returns a string (row,column. Just a reminder!)
+    return coordinate;
   }
 
   allShipsSunk() {
@@ -90,7 +97,7 @@ export class Gameboard {
     this.board = null;
     this.ships = [];
     this.attacks = [];
-    this.availableMoves = [];
+    this.availableMoves = new Set();
     this.usedCoordinates = new Set();
 
     this.createBoard();

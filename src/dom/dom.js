@@ -60,6 +60,7 @@ export function gameStart() {
     });
 
     startButton.addEventListener('click', () => {
+        const { playerOne } = players;
         const currentOption = document.querySelector('.current-option');
         
         removeEmptyBoard();
@@ -67,6 +68,7 @@ export function gameStart() {
 
         players.playerTwo = createPlayer(currentOption.textContent);
         displayBoard(players.playerTwo);
+        disableBoard(playerOne);
 
         document.addEventListener('click', cellClickHandler);
     });
