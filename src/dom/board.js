@@ -21,7 +21,7 @@ export function displayBoard(player) {
 
     // fix when 2 player implementation started!
     if (player.name === 'Player One') {
-        addRandomizeButton(player, gameboardContainer);
+        addRandomizeButton(gameboard, player, gameboardContainer);
     }
 
     createCells(gameboard, boardData, player.gameboard);
@@ -84,8 +84,7 @@ export function removeEmptyBoard() {
     emptyBoard.remove();
 }
 
-function addRandomizeButton(player, gameboardContainer) {
-    const gameboard = player.gameboard;
+function addRandomizeButton(gameboard, player, gameboardContainer) {
     const randomizeButton = document.createElement('button');
     const randomizeIcon = document.createElement('span');
 
@@ -101,11 +100,12 @@ function addRandomizeButton(player, gameboardContainer) {
 
     randomizeButton.addEventListener('click', () => {
         player.gameboard.clearBoard();
+        gameboard.replaceChildren();
 
-        const shipCoordinates = randomizeShips(gameboard);
-        populateGameboard(shipCoordinates, gameboard);
+        const shipCoordinates = randomizeShips(player.gameboard);
+        populateGameboard(shipCoordinates, player.gameboard);
 
-        updateBoard(player);
+        createCells(gameboard, player.gameboard.board, player.gameboard);
     });
 }
 

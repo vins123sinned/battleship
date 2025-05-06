@@ -91,6 +91,7 @@ export class Gameboard {
     this.ships = [];
     this.attacks = [];
     this.availableMoves = [];
+    this.usedCoordinates = new Set();
 
     this.createBoard();
     this.populateMoves();
