@@ -66,11 +66,17 @@ export class Gameboard {
         coordinate,
         result: 'hit',
       });
+
+      console.log(this.attacks)
+      return true;
     } else {
       this.attacks.push({
         coordinate,
         result: 'miss',
       });
+
+      console.log(this.attacks)
+      return false;
     }
   }
 
@@ -87,6 +93,10 @@ export class Gameboard {
     
     // returns a string (row,column. Just a reminder!)
     return coordinate;
+  }
+
+  takeDiagonalCoordinate(coordinate) {
+    this.availableMoves.delete(coordinate);
   }
 
   allShipsSunk() {
