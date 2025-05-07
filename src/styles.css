@@ -21,6 +21,10 @@ button {
     border-radius: 5px;
 }
 
+button:hover {
+    cursor: pointer;
+}
+
 .boards {
     display: flex;
     justify-content: space-around;
@@ -127,7 +131,16 @@ button {
     z-index: 999;
 }
 
-.game-options-heading {
+.intermission-div {
+    text-align: right;
+    position: absolute;
+    top: 4rem;
+    right: 1.4rem;
+    z-index: 999;
+}
+
+.game-options-heading,
+.intermission-heading {
     color: #000;
     margin-bottom: 0.25rem;
 }
@@ -148,7 +161,12 @@ button {
     color: #000;
 }
 
-.start-button {
+.intermission-para {
+    color: #000;
+}
+
+.start-button,
+.intermission-button {
     display: block;
     font-size: 1.25rem;
     font-weight: 700;
@@ -156,6 +174,11 @@ button {
     color: #fff;
     padding: 0.5rem 0.25rem;
     margin-top: 1rem;
+}
+
+
+.intermission-button {
+    margin-left: auto;
 }
 
 .game-over-div {
@@ -194,21 +217,13 @@ button {
     margin: 0.5rem 1rem 0.75rem auto;
 }
 
-.new-game-button:hover,
-.player-option:hover,
-.computer-option:hover,
-.start-button:hover,
-.randomize-button:hover,
-.ship-div:hover {
-    cursor: pointer;
-}
-
 .new-game-button:active,
 .start-button:active {
     background-color: #80b0f0;
 }
 
-.start-overlay {
+.start-overlay,
+.intermission-overlay {
     position: absolute;
     display: block;
     width: 100%;
@@ -231,6 +246,14 @@ button {
     bottom: 0;
     background-color: rgb(0, 0, 0, 0.2);
     z-index: 2;
+}
+
+.grayed-out,
+.grayed-out .column,
+.grayed-out + .board-name {
+    border-color: #ebeaea;
+    color: #afaeae;
+    position: relative;
 }
 
 @keyframes shake {

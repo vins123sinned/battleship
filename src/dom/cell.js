@@ -1,3 +1,4 @@
+import { players } from "../index.js";
 import { shipMousedown, switchShipDirection } from "./events.js";
 import { getStartingCoords } from "./helpers.js";
 
@@ -14,6 +15,8 @@ export let temporaryCoordinates = new Set();
 export let isInvalid = false;
 
 export function createCells(gameboard, boardData, gameboardObject, playerName) {
+    const { currentPlayer } = players;
+    console.log(currentPlayer);
     let rowIndex = 0;
     let columnIndex = 0;
 

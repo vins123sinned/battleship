@@ -1,7 +1,8 @@
-import { createCells, createEnemyCells, createShipCells, mergeShipCells } from "./cell";
-import { populateGameboard, randomizeShips } from "./helpers";
+import { gameController, players } from "../index.js";
+import { createCells } from "./cell";
+import { populateGameboard, randomizeShips } from "./helpers.js";
 
-export function displayBoard(player) {
+export function displayBoard(player, showRandomizer) {
     const boardData = player.gameboard.board;
 
     const boards = document.querySelector('.boards');
@@ -19,10 +20,8 @@ export function displayBoard(player) {
     gameboardContainer.appendChild(gameboardName);
     boards.appendChild(gameboardContainer);
 
-    // fix when 2 player implementation started!
-    if (player.name === 'Player One') {
-        addRandomizeButton(gameboard, player, gameboardContainer);
-    }
+    // initial randomize button for player one
+    if (showRandomizer) addRandomizeButton(gameboard, player, gameboardContainer);
 
     createCells(gameboard, boardData, player.gameboard, player.name);
 }
@@ -60,7 +59,7 @@ export function displayEmptyBoard(rows = 10, columns = 10) {
     createCells(gameboard, boardData, attacks);
 }
 
-/* Board Clean Up Functions */
+/* Board Misc Functions */
 
 export function enableBoard(player) {
     const gameboard = document.querySelector(`[data-player="${player.name}"]`);
@@ -115,4 +114,51 @@ export function removeRandomizeButtons() {
     randomizeButton.forEach((button) => {
         button.remove();
     });
+}
+
+export function setupHideBoard(player) {
+    hideBoard(player)
+    intermissionScreen(player);
+}
+
+export function hideBoard(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    const shipDivs = gameboard.querySelectorAll('.ship-div');
+    shipDivs.forEach((shipDiv) => {
+        shipDiv.remove();
+    });
+}
+
+
+function intermissionScreen(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+
+    gameboard.classList.add('grayed-out');
+    gameboard.querySelectorAll('.column').forEach((column) => {
+        column.classList.add('disabled');
+    });
+
+    const intermissionDiv = document.createElement('div');
+    const intermissionHeading = document.createElement('h2');
+    const intermissionPara = document.createElement('p');
+    const intermissionButton = document.createElement('button');
+    const overlay = document.createElement('div');
+
+    intermissionButton.type = 'button';
+    intermissionHeading.textContent = 'Place your ships';
+    intermissionPara.textContent = 'When you\'re ready, click the button!';
+    intermissionButton.textContent = 'End turn';
+
+    intermissionDiv.classList.add('intermission-div');
+    intermissionHeading.classList.add('intermission-heading');
+    intermissionPara.classList.add('intermission-para');
+    intermissionButton.classList.add('intermission-button');
+    overlay.classList.add('intermission-overlay');
+
+    intermissionDiv.appendChild(intermissionHeading)
+    intermissionDiv.appendChild(intermissionPara);
+    intermissionDiv.append(intermissionButton);
+
+    gameboard.appendChild(intermissionDiv);
+    gameboard.appendChild(overlay);
 }

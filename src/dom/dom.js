@@ -1,6 +1,6 @@
 import { gameController, players } from "../index.js";
 import { Player } from "../player.js";
-import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, displayEnemyBoard } from "./board.js";
+import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, hideBoard, setupHideBoard } from "./board.js";
 import { randomizeShips, populateGameboard } from "./helpers.js";
 import { cellClickHandler } from "./events.js";
 
@@ -60,34 +60,36 @@ export function gameStart() {
     });
 
     startButton.addEventListener('click', () => {
-        const { playerOne } = players;
         const currentOption = document.querySelector('.current-option');
 
         removeEmptyBoard();
+        removeRandomizeButtons();
 
-        if (currentOption.textContent === 'Computer') {
-            computerGame(playerOne);
+        if (currentOption.textContent === 'Player') {
+            playerGame();
+        } else if (currentOption.textContent === 'Computer') {
+            computerGame();
         }
-        
-        /*
-        removeEmptyBoard();
-        //removeRandomizeButtons();
-
-        players.playerTwo = createPlayer(currentOption.textContent);
-        displayBoard(players.playerTwo);
-        disableBoard(playerOne);
-
-        document.addEventListener('click', cellClickHandler);
-        */
     });
 }
 
-function computerGame(playerOne) {
+function computerGame() {
+    const { playerOne } = players;
+
     players.playerTwo = createPlayer('Computer');
     displayBoard(players.playerTwo);
     disableBoard(playerOne);
 
     document.addEventListener('click', cellClickHandler);
+}
+
+function playerGame() {
+    players.currentPlayer = players.playerOne;
+    players.playerTwo = createPlayer('Player Two');
+    const { playerOne, playerTwo } = players;
+
+    displayBoard(playerTwo, true);
+    setupHideBoard(playerOne);
 }
 
 export function checkGameOver(playerOne, playerTwo) {
