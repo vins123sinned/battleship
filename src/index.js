@@ -10,6 +10,7 @@ export const players = {
 
 export function gameController() {
     players.playerOne = createPlayer('Player One', true);
+    players.currentPlayer = players.playerOne;
 
     displayBoard(players.playerOne, true);
     displayEmptyBoard();

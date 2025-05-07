@@ -70,6 +70,8 @@ export function gameStart() {
         } else if (currentOption.textContent === 'Computer') {
             computerGame();
         }
+
+        document.addEventListener('click', cellClickHandler);
     });
 }
 
@@ -79,13 +81,11 @@ function computerGame() {
     players.playerTwo = createPlayer('Computer');
     displayBoard(players.playerTwo);
     disableBoard(playerOne);
-
-    document.addEventListener('click', cellClickHandler);
 }
 
 function playerGame() {
-    players.currentPlayer = players.playerOne;
     players.playerTwo = createPlayer('Player Two');
+    players.currentPlayer = players.playerTwo;
     const { playerOne, playerTwo } = players;
 
     displayBoard(playerTwo, true);
@@ -186,6 +186,10 @@ export function checkGameOver(playerOne, playerTwo) {
 }
 
 function gameOver(winner) {
+    players.currentPlayer = 'Game Over';
+    const passDiv = document.querySelector('.pass-div');
+    if (passDiv) removePassScreen();
+    
     const overlay = document.createElement('div');
     const gameOverDiv = document.createElement('div');
     const gameOverHeading = document.createElement('h1');

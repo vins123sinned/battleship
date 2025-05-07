@@ -1,7 +1,5 @@
-import { gameController, players } from "../index.js";
 import { createCells } from "./cell";
 import { showIntermissionDiv } from "./dom.js";
-import { playerGameStart } from "./events.js";
 import { populateGameboard, randomizeShips } from "./helpers.js";
 
 export function displayBoard(player, showRandomizer) {

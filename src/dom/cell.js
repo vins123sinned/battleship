@@ -16,7 +16,7 @@ export let isInvalid = false;
 
 export function createCells(gameboard, boardData, gameboardObject, playerName) {
     const { currentPlayer } = players;
-    console.log(currentPlayer);
+ 
     let rowIndex = 0;
     let columnIndex = 0;
 
@@ -44,8 +44,7 @@ export function createCells(gameboard, boardData, gameboardObject, playerName) {
         columnIndex = 0;
     });
 
-    if (currentPlayer) console.log(currentPlayer.name);
-    if (gameboardObject.ships && playerName !== 'Computer' || currentPlayer && currentPlayer.name === playerName) createShips(gameboardObject.ships, gameboard);
+    if (gameboardObject.ships && playerName !== 'Computer' && currentPlayer && currentPlayer.name === playerName) createShips(gameboardObject.ships, gameboard);
 }
 
 export function createShips(ships, gameboard) {
@@ -60,7 +59,7 @@ export function createShips(ships, gameboard) {
         shipDiv.style.outline = '4px solid #fe4f4f';
         ship.coordinates.forEach((coordinate) => {
             const shipCell = document.createElement('div');
-            const cell = document.querySelector(`[data-coordinate="${`${coordinate[0]},${coordinate[1]}`}"]`)
+            const cell = gameboard.querySelector(`[data-coordinate="${`${coordinate[0]},${coordinate[1]}`}"]`);
 
             shipCell.classList.add('ship-cell');
             shipCell.dataset.coordinate = `${coordinate[0]},${coordinate[1]}`;

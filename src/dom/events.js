@@ -1,6 +1,6 @@
 import { players } from "../index.js";
-import { disableBoard, hideBoard, updateBoard } from "./board.js";
-import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv } from "./dom";
+import { disableBoard, hideBoard, removeRandomizeButtons, updateBoard } from "./board.js";
+import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showIntermissionDiv } from "./dom";
 import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
@@ -11,23 +11,33 @@ export function cellClickHandler(event) {
 }
 
 export function cellListener(event, playerOne, playerTwo) {
+    const intermissionDiv = document.querySelector('.intermission-div');
+    if (intermissionDiv) return;
+
     if (event.target.classList.contains('column')) {
         const currentPlayer = playerOne.currentTurn ? playerTwo : playerOne;
         const currentBoard = currentPlayer.gameboard;
         const coordinate = event.target.dataset.coordinate;
 
-        if (currentBoard.isAlreadyAttacked(coordinate)) return console.log('already attacked!');
+        if (currentBoard.isAlreadyAttacked(coordinate)) return;
         currentBoard.receiveAttack(coordinate);
 
         updateBoard(currentPlayer);
         updatePlayerTurn(playerOne, playerTwo);
 
-        // computer makes move
         if (playerTwo.currentTurn === true && playerTwo.name === 'Computer') {
+            // computer makes move
             playerOne.gameboard.receiveAttack(playerOne.gameboard.chooseRandomCoordinate());
+            
             updateBoard(playerOne);
             updatePlayerTurn(playerOne, playerTwo);
-        };
+        } else if (playerTwo.name === 'Player Two' && players.currentPlayer !== 'Game Over') {
+            // computer makes move
+            hideBoard(playerOne);
+            hideBoard(playerTwo);
+
+            showPassScreen();
+        }
 
         checkGameOver(playerOne, playerTwo);
     }
@@ -208,6 +218,7 @@ export function playerGameStart() {
     const { playerOne, playerTwo } = players;
 
     removeIntermissionDiv(playerOne);
+    removeRandomizeButtons();
     hideBoard(playerOne);
     hideBoard(playerTwo);
 
@@ -215,13 +226,14 @@ export function playerGameStart() {
 }
 
 export function switchTurns() {
+    // fix here
     const { currentPlayer, playerOne, playerTwo } = players;
-    const nextPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+    const newCurrentPlayer = (players.currentPlayer === playerOne) ? playerTwo : playerOne
+    players.currentPlayer = newCurrentPlayer;
 
     removePassScreen();
 
-    // fix updateBoard here!
     updateBoard(currentPlayer);
-    updateBoard(nextPlayer);
-    disableBoard(currentPlayer);
+    updateBoard(newCurrentPlayer);
+    disableBoard(newCurrentPlayer);
 }
