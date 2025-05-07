@@ -1,5 +1,7 @@
 import { gameController, players } from "../index.js";
 import { createCells } from "./cell";
+import { showIntermissionDiv } from "./dom.js";
+import { playerGameStart } from "./events.js";
 import { populateGameboard, randomizeShips } from "./helpers.js";
 
 export function displayBoard(player, showRandomizer) {
@@ -118,7 +120,7 @@ export function removeRandomizeButtons() {
 
 export function setupHideBoard(player) {
     hideBoard(player)
-    intermissionScreen(player);
+    showIntermissionDiv(player);
 }
 
 export function hideBoard(player) {
@@ -127,38 +129,4 @@ export function hideBoard(player) {
     shipDivs.forEach((shipDiv) => {
         shipDiv.remove();
     });
-}
-
-
-function intermissionScreen(player) {
-    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
-
-    gameboard.classList.add('grayed-out');
-    gameboard.querySelectorAll('.column').forEach((column) => {
-        column.classList.add('disabled');
-    });
-
-    const intermissionDiv = document.createElement('div');
-    const intermissionHeading = document.createElement('h2');
-    const intermissionPara = document.createElement('p');
-    const intermissionButton = document.createElement('button');
-    const overlay = document.createElement('div');
-
-    intermissionButton.type = 'button';
-    intermissionHeading.textContent = 'Place your ships';
-    intermissionPara.textContent = 'When you\'re ready, click the button!';
-    intermissionButton.textContent = 'End turn';
-
-    intermissionDiv.classList.add('intermission-div');
-    intermissionHeading.classList.add('intermission-heading');
-    intermissionPara.classList.add('intermission-para');
-    intermissionButton.classList.add('intermission-button');
-    overlay.classList.add('intermission-overlay');
-
-    intermissionDiv.appendChild(intermissionHeading)
-    intermissionDiv.appendChild(intermissionPara);
-    intermissionDiv.append(intermissionButton);
-
-    gameboard.appendChild(intermissionDiv);
-    gameboard.appendChild(overlay);
 }

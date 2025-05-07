@@ -2,7 +2,7 @@ import { gameController, players } from "../index.js";
 import { Player } from "../player.js";
 import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, hideBoard, setupHideBoard } from "./board.js";
 import { randomizeShips, populateGameboard } from "./helpers.js";
-import { cellClickHandler } from "./events.js";
+import { cellClickHandler, playerGameStart, switchTurns } from "./events.js";
 
 export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
@@ -90,6 +90,91 @@ function playerGame() {
 
     displayBoard(playerTwo, true);
     setupHideBoard(playerOne);
+}
+
+export function showPassScreen() {
+    const passDiv = document.createElement('div');
+    const passHeading = document.createElement('h1');
+    const passPara = document.createElement('p');
+    const passButton = document.createElement('button');
+    const overlay = document.createElement('div');
+
+    passButton.type = 'button';
+    passHeading.textContent = 'Pass Your Device!';
+    passPara.textContent = 'When you\'re ready, click the button!';
+    passButton.textContent = 'Start Turn';
+
+    passDiv.classList.add('pass-div');
+    passHeading.classList.add('pass-heading');
+    passPara.classList.add('pass-para');
+    passButton.classList.add('pass-button');
+    overlay.classList.add('pass-overlay');
+
+    passDiv.appendChild(passHeading)
+    passDiv.appendChild(passPara);
+    passDiv.append(passButton);
+
+    document.body.appendChild(passDiv);
+    document.body.appendChild(overlay);
+
+    // add transition to pass screen
+    void overlay.offsetWidth;
+    overlay.classList.add('show');
+
+    passButton.addEventListener('click', switchTurns);
+}
+
+export function removePassScreen() {
+    const passDiv = document.querySelector('.pass-div');
+    const overlay = document.querySelector('.pass-overlay');
+
+    passDiv.remove();
+    overlay.remove();
+}
+
+export function showIntermissionDiv(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+
+    gameboard.classList.add('grayed-out');
+    gameboard.querySelectorAll('.column').forEach((column) => {
+        column.classList.add('disabled');
+    });
+
+    const intermissionDiv = document.createElement('div');
+    const intermissionHeading = document.createElement('h2');
+    const intermissionPara = document.createElement('p');
+    const intermissionButton = document.createElement('button');
+    const overlay = document.createElement('div');
+
+    intermissionButton.type = 'button';
+    intermissionHeading.textContent = 'Place your ships';
+    intermissionPara.textContent = 'When you\'re ready, click the button!';
+    intermissionButton.textContent = 'Start game';
+
+    intermissionDiv.classList.add('intermission-div');
+    intermissionHeading.classList.add('intermission-heading');
+    intermissionPara.classList.add('intermission-para');
+    intermissionButton.classList.add('intermission-button');
+    overlay.classList.add('intermission-overlay');
+
+    intermissionDiv.appendChild(intermissionHeading)
+    intermissionDiv.appendChild(intermissionPara);
+    intermissionDiv.append(intermissionButton);
+
+    gameboard.appendChild(intermissionDiv);
+    gameboard.appendChild(overlay);
+
+    intermissionButton.addEventListener('click', playerGameStart);
+}
+
+export function removeIntermissionDiv(player) {
+    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+    const intermissionDiv = document.querySelector('.intermission-div');
+    const overlay = document.querySelector('.intermission-overlay');
+
+    gameboard.classList.remove('grayed-out');
+    intermissionDiv.remove();
+    overlay.remove();
 }
 
 export function checkGameOver(playerOne, playerTwo) {

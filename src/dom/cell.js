@@ -44,7 +44,8 @@ export function createCells(gameboard, boardData, gameboardObject, playerName) {
         columnIndex = 0;
     });
 
-    if (gameboardObject.ships && playerName !== 'Computer') createShips(gameboardObject.ships, gameboard);
+    if (currentPlayer) console.log(currentPlayer.name);
+    if (gameboardObject.ships && playerName !== 'Computer' || currentPlayer && currentPlayer.name === playerName) createShips(gameboardObject.ships, gameboard);
 }
 
 export function createShips(ships, gameboard) {

@@ -1,8 +1,10 @@
 import { players } from "../index.js";
-import { updateBoard } from "./board.js";
-import { updatePlayerTurn, checkGameOver } from "./dom";
+import { disableBoard, hideBoard, updateBoard } from "./board.js";
+import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv } from "./dom";
 import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
+
+/* Cell Listeners */
 
 export function cellClickHandler(event) {
     cellListener(event, players.playerOne, players.playerTwo);
@@ -30,6 +32,8 @@ export function cellListener(event, playerOne, playerTwo) {
         checkGameOver(playerOne, playerTwo);
     }
 }
+
+/* Drag and Drop Listeners */
 
 export function shipMousedown(event, ship) {
     dragInfo.player = (event.target.parentNode.parentNode.dataset.player === 'Player One') ? players.playerOne : players.playerTwo;
@@ -197,4 +201,27 @@ function invalidSwitchShake() {
         draggedShip.classList.remove('shake');
         removeDragStyles(draggedShip);
     }, 200);
+}
+
+/* Game Controller Listeners */
+export function playerGameStart() {
+    const { playerOne, playerTwo } = players;
+
+    removeIntermissionDiv(playerOne);
+    hideBoard(playerOne);
+    hideBoard(playerTwo);
+
+    showPassScreen();
+}
+
+export function switchTurns() {
+    const { currentPlayer, playerOne, playerTwo } = players;
+    const nextPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+
+    removePassScreen();
+
+    // fix updateBoard here!
+    updateBoard(currentPlayer);
+    updateBoard(nextPlayer);
+    disableBoard(currentPlayer);
 }
