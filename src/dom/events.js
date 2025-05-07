@@ -1,6 +1,6 @@
 import { players } from "../index.js";
-import { disableBoard, hideBoard, removeRandomizeButtons, updateBoard } from "./board.js";
-import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showIntermissionDiv } from "./dom";
+import { disableBoard, enableBoard, hideBoard, removeRandomizeButtons, updateBoard } from "./board.js";
+import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showIntermissionDiv, showEndTurnButton } from "./dom";
 import { getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
@@ -32,11 +32,10 @@ export function cellListener(event, playerOne, playerTwo) {
             updateBoard(playerOne);
             updatePlayerTurn(playerOne, playerTwo);
         } else if (playerTwo.name === 'Player Two' && players.currentPlayer !== 'Game Over') {
-            // computer makes move
-            hideBoard(playerOne);
-            hideBoard(playerTwo);
-
-            showPassScreen();
+            // player makes move
+            disableBoard(playerOne);
+            disableBoard(playerTwo);
+            showEndTurnButton();
         }
 
         checkGameOver(playerOne, playerTwo);
@@ -236,4 +235,15 @@ export function switchTurns() {
     updateBoard(currentPlayer);
     updateBoard(newCurrentPlayer);
     disableBoard(newCurrentPlayer);
+}
+
+export function endTurnClicked() {
+    const { playerOne, playerTwo } = players;
+
+    hideBoard(playerOne);
+    hideBoard(playerTwo);
+    enableBoard(playerOne);
+    enableBoard(playerTwo);
+
+    showPassScreen();
 }

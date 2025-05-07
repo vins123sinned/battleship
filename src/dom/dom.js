@@ -2,7 +2,7 @@ import { gameController, players } from "../index.js";
 import { Player } from "../player.js";
 import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, hideBoard, setupHideBoard } from "./board.js";
 import { randomizeShips, populateGameboard } from "./helpers.js";
-import { cellClickHandler, playerGameStart, switchTurns } from "./events.js";
+import { cellClickHandler, endTurnClicked, playerGameStart, switchTurns } from "./events.js";
 
 export function createPlayer(name, currentTurn = false) {
     const player = new Player(name, currentTurn);
@@ -239,4 +239,15 @@ export function updatePlayerTurn(playerOne, playerTwo) {
 
     disableBoard(nextPlayer);
     enableBoard(currentPlayer);
+}
+
+export function showEndTurnButton() {
+    const endTurnButton = document.createElement('button');
+    endTurnButton.classList.add('end-turn-button');
+    endTurnButton.type = 'button';
+    endTurnButton.textContent = 'End Turn';
+
+    document.body.appendChild(endTurnButton);
+
+    endTurnButton.addEventListener('click', endTurnClicked);
 }
