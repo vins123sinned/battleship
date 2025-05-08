@@ -1,4 +1,7 @@
+import { players } from "..";
+import { updateBoard } from "./board";
 import { dragInfo, temporaryCoordinates } from "./cell";
+import { updatePlayerTurn } from "./dom";
 
 /* Randomize Button */
 
@@ -234,4 +237,67 @@ export function updateBoardData() {
     player.gameboard.createBoard();
 
     populateGameboard(newShipCoordinates, player.gameboard);
+}
+
+/* Computer AI */
+export function takeDiagonalCoordinates(currentBoard, coordinate, computer) {
+    const [ row, column ] = coordinate.split(',').map(Number);
+    const diagonalCoords = [
+       [row - 1, column - 1],[row - 1, column + 1],
+       [row + 1, column - 1], [row + 1, column + 1],
+    ];
+
+    diagonalCoords.forEach((coord) => {
+        const [ r, c ] = coord;
+        if (r > 9 || r < 0 || c > 9 || c < 0) return;
+
+        if (currentBoard.attacks.find((attack) => attack.coordinate === `${r},${c}`)) return;
+
+        currentBoard.receiveAttack(`${r},${c}`);
+        if (computer) currentBoard.takeDiagonalCoordinate(`${r},${c}`);
+    });
+}
+
+export function computerAttacks() {
+    // computer makes move
+    const { playerOne, playerTwo } = players;
+    const randomCoordinate = chooseComputerCoordinates(playerOne);
+    const isHit = playerOne.gameboard.receiveAttack(randomCoordinate);
+
+    if (isHit) {
+        // attack again if ship is hit
+        takeDiagonalCoordinates(playerOne.gameboard, randomCoordinate, playerTwo.name);
+
+        setTimeout(computerAttacks, 100);
+    } else {
+        updatePlayerTurn(playerOne, playerTwo);
+    }
+    
+    updateBoard(playerOne);
+}
+
+function chooseComputerCoordinates(playerOne) {
+    const enemyGameboard = document.querySelector('[data-player="Player One"]');
+    const hitCells = enemyGameboard.querySelectorAll('.ship-hit');
+    let coordinate = playerOne.gameboard.chooseRandomCoordinate();
+
+    for (const cell of hitCells) {
+        const [ row, column ] = cell.dataset.coordinate.split(',').map(Number);
+        const adjacentCells = [
+            [row + 1, column], [row - 1, column],
+            [row, column + 1], [row, column - 1],
+            [row + 1, column + 1], [row + 1, column - 1],
+            [row - 1, column + 1], [row - 1, column - 1],
+        ];
+
+        for (const adjacent of adjacentCells) {
+            const [ r, c ] = adjacent;
+
+            if (r > 9 || r < 0 || c > 9 || c < 0) continue;
+
+            if (!playerOne.gameboard.isAlreadyAttacked(`${r},${c}`)) return coordinate = `${r},${c}`;
+        }
+    }
+
+    return coordinate;
 }

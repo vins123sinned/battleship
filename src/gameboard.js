@@ -1,5 +1,3 @@
-import { dragInfo } from "./dom/cell.js";
-import { randomizeShips } from "./dom/helpers.js";
 import { Ship } from "./ship.js";
 
 export class Gameboard {
@@ -67,7 +65,6 @@ export class Gameboard {
         result: 'hit',
       });
 
-      console.log(this.attacks)
       return true;
     } else {
       this.attacks.push({
@@ -75,7 +72,6 @@ export class Gameboard {
         result: 'miss',
       });
 
-      console.log(this.attacks)
       return false;
     }
   }

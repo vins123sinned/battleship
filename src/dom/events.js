@@ -1,7 +1,7 @@
 import { players } from "../index.js";
 import { disableBoard, enableBoard, hideBoard, removeRandomizeButtons, updateBoard } from "./board.js";
 import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showIntermissionDiv, showEndTurnButton } from "./dom";
-import { getStartingCoords, getStartingSwitchCoords, shipIsHit, switchIsPossible, takeAdjacent, untakeCoordinates, updateBoardData } from "./helpers.js";
+import { computerAttacks, getStartingCoords, getStartingSwitchCoords, shipIsHit, switchIsPossible, takeAdjacent, takeDiagonalCoordinates, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
 /* Cell Listeners */
@@ -44,42 +44,6 @@ export function cellListener(event, playerOne, playerTwo) {
 
         checkGameOver(playerOne, playerTwo);
     }
-}
-
-function takeDiagonalCoordinates(currentBoard, coordinate, computer) {
-    const [ row, column ] = coordinate.split(',').map(Number);
-    const diagonalCoords = [
-       [row - 1, column - 1],[row - 1, column + 1],
-       [row + 1, column - 1], [row + 1, column + 1],
-    ];
-
-    diagonalCoords.forEach((coord) => {
-        const [ r, c ] = coord;
-        if (r > 9 || r < 0 || c > 9 || c < 0) return;
-
-        if (currentBoard.attacks.find((attack) => attack.coordinate === `${r},${c}`)) return;
-
-        currentBoard.receiveAttack(`${r},${c}`);
-        if (computer) currentBoard.takeDiagonalCoordinate(`${r},${c}`);
-    });
-}
-
-function computerAttacks() {
-    // computer makes move
-    const { playerOne, playerTwo } = players;
-    const randomCoordinate = playerOne.gameboard.chooseRandomCoordinate();
-    const isHit = playerOne.gameboard.receiveAttack(randomCoordinate);
-
-    if (isHit) {
-        // attack again if ship is hit
-        takeDiagonalCoordinates(playerOne.gameboard, randomCoordinate, playerTwo.name);
-
-        setTimeout(computerAttacks, 100);
-    } else {
-        updatePlayerTurn(playerOne, playerTwo);
-    }
-    
-    updateBoard(playerOne);
 }
 
 /* Drag and Drop Listeners */
