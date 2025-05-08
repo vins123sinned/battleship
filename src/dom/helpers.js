@@ -262,6 +262,7 @@ export function computerAttacks() {
     // computer makes move
     const { playerOne, playerTwo } = players;
     const randomCoordinate = chooseComputerCoordinates(playerOne);
+    console.log('Computer attacking:', randomCoordinate);
     const isHit = playerOne.gameboard.receiveAttack(randomCoordinate);
 
     if (isHit) {
@@ -279,7 +280,6 @@ export function computerAttacks() {
 function chooseComputerCoordinates(playerOne) {
     const enemyGameboard = document.querySelector('[data-player="Player One"]');
     const hitCells = enemyGameboard.querySelectorAll('.ship-hit');
-    let coordinate = playerOne.gameboard.chooseRandomCoordinate();
 
     for (const cell of hitCells) {
         const [ row, column ] = cell.dataset.coordinate.split(',').map(Number);
@@ -290,14 +290,20 @@ function chooseComputerCoordinates(playerOne) {
             [row - 1, column + 1], [row - 1, column - 1],
         ];
 
-        for (const adjacent of adjacentCells) {
-            const [ r, c ] = adjacent;
-
+        for (const [ r, c ] of adjacentCells) {
+            const coord = `${r},${c}`;
             if (r > 9 || r < 0 || c > 9 || c < 0) continue;
+            if (playerOne.gameboard.isAlreadyAttacked(coord)) continue;
 
-            if (!playerOne.gameboard.isAlreadyAttacked(`${r},${c}`)) return coordinate = `${r},${c}`;
+            if (!playerOne.gameboard.isAlreadyAttacked(`${r},${c}`) && playerOne.gameboard.availableMoves.has(`${r},${c}`)) {
+                playerOne.gameboard.availableMoves.delete(`${r},${c}`);
+                return coord;
+            };
         }
     }
 
-    return coordinate;
+    // when no ship cells hit with adjacents
+    const fallback = playerOne.gameboard.chooseRandomCoordinate();
+    if (fallback) playerOne.gameboard.availableMoves.delete(fallback);
+    return fallback;
 }

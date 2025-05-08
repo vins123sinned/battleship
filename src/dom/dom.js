@@ -1,6 +1,6 @@
 import { gameController, players } from "../index.js";
 import { Player } from "../player.js";
-import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, hideBoard, setupHideBoard } from "./board.js";
+import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, setupHideBoard } from "./board.js";
 import { randomizeShips, populateGameboard } from "./helpers.js";
 import { cellClickHandler, endTurnClicked, playerGameStart, switchTurns } from "./events.js";
 
@@ -178,17 +178,26 @@ export function removeIntermissionDiv(player) {
 }
 
 export function checkGameOver(playerOne, playerTwo) {
+    const isGameOver = false;
+
     if (playerOne.gameboard.allShipsSunk()) {
         gameOver(playerTwo.name);
+        return true;
     } else if (playerTwo.gameboard.allShipsSunk()) {
         gameOver(playerOne.name);
+        return true;
     }
+
+    return isGameOver;
 }
 
 function gameOver(winner) {
     players.currentPlayer = 'Game Over';
+
     const passDiv = document.querySelector('.pass-div');
+    const endTurnButton = document.querySelector('.end-turn-button');
     if (passDiv) removePassScreen();
+    if (endTurnButton) endTurnButton.remove();
     
     const overlay = document.createElement('div');
     const gameOverDiv = document.createElement('div');

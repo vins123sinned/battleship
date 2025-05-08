@@ -57,6 +57,7 @@ button:hover {
 
 .ship-div {
     outline: 4px solid #467cc2;
+    border-radius: 5px;
 }
 
 .ship-cell {

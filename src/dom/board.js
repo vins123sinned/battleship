@@ -98,14 +98,13 @@ function addRandomizeButton(gameboard, player, gameboardContainer) {
     gameboardContainer.appendChild(randomizeButton);
 
     randomizeButton.addEventListener('click', () => {
-        // move this to events.js later!
         player.gameboard.clearBoard();
         gameboard.replaceChildren();
 
         const shipCoordinates = randomizeShips(player.gameboard);
         populateGameboard(shipCoordinates, player.gameboard);
 
-        createCells(gameboard, player.gameboard.board, player.gameboard);
+        createCells(gameboard, player.gameboard.board, player.gameboard, player.name);
     });
 }
 

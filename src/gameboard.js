@@ -84,8 +84,6 @@ export class Gameboard {
     const moves = Array.from(this.availableMoves);
     const randomIndex = Math.floor(Math.random() * moves.length);
     const coordinate = moves[randomIndex];
-
-    this.availableMoves.delete(coordinate);
     
     // returns a string (row,column. Just a reminder!)
     return coordinate;

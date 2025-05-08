@@ -1,7 +1,7 @@
 import { players } from "../index.js";
 import { disableBoard, enableBoard, hideBoard, removeRandomizeButtons, updateBoard } from "./board.js";
-import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showIntermissionDiv, showEndTurnButton } from "./dom";
-import { computerAttacks, getStartingCoords, getStartingSwitchCoords, shipIsHit, switchIsPossible, takeAdjacent, takeDiagonalCoordinates, untakeCoordinates, updateBoardData } from "./helpers.js";
+import { updatePlayerTurn, checkGameOver, showPassScreen, removePassScreen, removeIntermissionDiv, showEndTurnButton } from "./dom";
+import { computerAttacks, getStartingCoords, getStartingSwitchCoords, switchIsPossible, takeAdjacent, takeDiagonalCoordinates, untakeCoordinates, updateBoardData } from "./helpers.js";
 import { previewShipPlacement, dragInfo, placeShip, applyInvalid } from "./cell.js";
 
 /* Cell Listeners */
@@ -21,6 +21,12 @@ export function cellListener(event, playerOne, playerTwo) {
 
         if (currentBoard.isAlreadyAttacked(coordinate)) return;
         const isHit = currentBoard.receiveAttack(coordinate);
+
+        // check game over before giving extra move
+        if (checkGameOver(playerOne, playerTwo)) {
+            updateBoard(currentPlayer);
+            return;
+        };
 
         // let player keep going after getting a successful hit
         if (isHit) {
@@ -254,3 +260,5 @@ export function endTurnClicked() {
 
     showPassScreen();
 }
+
+/* Randomize Ship Listeners */
