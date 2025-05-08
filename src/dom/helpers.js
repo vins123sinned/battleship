@@ -262,7 +262,6 @@ export function computerAttacks() {
     // computer makes move
     const { playerOne, playerTwo } = players;
     const randomCoordinate = chooseComputerCoordinates(playerOne);
-    console.log('Computer attacking:', randomCoordinate);
     const isHit = playerOne.gameboard.receiveAttack(randomCoordinate);
 
     if (isHit) {
