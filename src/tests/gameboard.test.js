@@ -40,15 +40,22 @@ describe("gameboard class", () => {
     expect(testGameboard2.availableMoves).toContainEqual([0, 0]);
     expect(testGameboard2.availableMoves).toContainEqual([3, 7]);
     expect(testGameboard2.availableMoves).toContainEqual([3, 0]);
-  })
+  });
 
   test("place ship on board", () => {
     const testGameboard = new Gameboard(8, 8);
     const testGameboard2 = new Gameboard(4, 7);
 
     testGameboard.placeShip([[3, 3]]);
-    testGameboard2.placeShip([[1, 1], [1, 2], [1, 3]]);
-    testGameboard2.placeShip([[3, 6], [3, 5]]);
+    testGameboard2.placeShip([
+      [1, 1],
+      [1, 2],
+      [1, 3],
+    ]);
+    testGameboard2.placeShip([
+      [3, 6],
+      [3, 5],
+    ]);
 
     expect(testGameboard.ships.length).toBe(1);
     expect(testGameboard2.ships.length).toBe(2);
@@ -64,8 +71,15 @@ describe("gameboard class", () => {
     const testGameboard2 = new Gameboard(4, 7);
 
     testGameboard.placeShip([[3, 3]]);
-    testGameboard2.placeShip([[1, 1], [1, 2], [1, 3]]);
-    testGameboard2.placeShip([[3, 6], [3, 5]]);
+    testGameboard2.placeShip([
+      [1, 1],
+      [1, 2],
+      [1, 3],
+    ]);
+    testGameboard2.placeShip([
+      [3, 6],
+      [3, 5],
+    ]);
 
     testGameboard.receiveAttack([3, 2]);
     expect(testGameboard.attacks).toHaveLength(1);
@@ -80,7 +94,7 @@ describe("gameboard class", () => {
     expect(testGameboard2.ships[0].hitTimes).toBe(0);
     expect(testGameboard2.ships[1].hitTimes).toBe(2);
 
-    expect(testGameboard.receiveAttack([3, 2])).toBe('Already attacked!');
+    expect(testGameboard.receiveAttack([3, 2])).toBe("Already attacked!");
   });
 
   test("board checks for duplicate attacks", () => {
@@ -102,7 +116,10 @@ describe("gameboard class", () => {
 
     testGameboard.placeShip([[3, 3]]);
     testGameboard2.placeShip([[1, 1]]);
-    testGameboard2.placeShip([[3, 6], [3, 5]]);
+    testGameboard2.placeShip([
+      [3, 6],
+      [3, 5],
+    ]);
 
     expect(testGameboard.allShipsSunk()).toBe(false);
     testGameboard.receiveAttack([3, 3]);

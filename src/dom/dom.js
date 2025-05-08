@@ -1,262 +1,276 @@
 import { gameController, players } from "../index.js";
 import { Player } from "../player.js";
-import { displayBoard, disableBoard, enableBoard, removeEmptyBoard, removeRandomizeButtons, setupHideBoard } from "./board.js";
+import {
+  displayBoard,
+  disableBoard,
+  enableBoard,
+  removeEmptyBoard,
+  removeRandomizeButtons,
+  setupHideBoard,
+} from "./board.js";
 import { randomizeShips, populateGameboard } from "./helpers.js";
-import { cellClickHandler, endTurnClicked, playerGameStart, switchTurns } from "./events.js";
+import {
+  cellClickHandler,
+  endTurnClicked,
+  playerGameStart,
+  switchTurns,
+} from "./events.js";
 
 export function createPlayer(name, currentTurn = false) {
-    const player = new Player(name, currentTurn);
+  const player = new Player(name, currentTurn);
 
-    const shipCoordinates = randomizeShips(player.gameboard);
+  const shipCoordinates = randomizeShips(player.gameboard);
 
-    populateGameboard(shipCoordinates, player.gameboard);
+  populateGameboard(shipCoordinates, player.gameboard);
 
-    return player;
+  return player;
 }
 
 /* Game Controller Functions */
 
 export function gameStart() {
-    const startBoard = document.querySelector('.start-board');
-    const gameOptionsDiv = document.createElement('div');
-    const gameOptionsHeading = document.createElement('h2');
-    const playerOption = document.createElement('button');
-    const computerOption = document.createElement('button');
-    const startButton = document.createElement('button');
-    const overlay = document.createElement('div');
+  const startBoard = document.querySelector(".start-board");
+  const gameOptionsDiv = document.createElement("div");
+  const gameOptionsHeading = document.createElement("h2");
+  const playerOption = document.createElement("button");
+  const computerOption = document.createElement("button");
+  const startButton = document.createElement("button");
+  const overlay = document.createElement("div");
 
-    playerOption.type = 'button';
-    computerOption.type = 'button';
-    startButton.type = 'button';
+  playerOption.type = "button";
+  computerOption.type = "button";
+  startButton.type = "button";
 
-    gameOptionsHeading.textContent = 'Opponent';
-    playerOption.textContent = 'Player';
-    computerOption.textContent = 'Computer';
-    startButton.textContent = 'Start Game';
+  gameOptionsHeading.textContent = "Opponent";
+  playerOption.textContent = "Player";
+  computerOption.textContent = "Computer";
+  startButton.textContent = "Start Game";
 
-    gameOptionsDiv.classList.add('game-options-div');
-    gameOptionsHeading.classList.add('game-options-heading');
-    playerOption.classList.add('player-option', 'current-option');
-    computerOption.classList.add('computer-option');
-    startButton.classList.add('start-button');
-    overlay.classList.add('start-overlay');
+  gameOptionsDiv.classList.add("game-options-div");
+  gameOptionsHeading.classList.add("game-options-heading");
+  playerOption.classList.add("player-option", "current-option");
+  computerOption.classList.add("computer-option");
+  startButton.classList.add("start-button");
+  overlay.classList.add("start-overlay");
 
-    gameOptionsDiv.appendChild(gameOptionsHeading);
-    gameOptionsDiv.appendChild(playerOption);
-    gameOptionsDiv.appendChild(computerOption);
-    gameOptionsDiv.appendChild(startButton);
+  gameOptionsDiv.appendChild(gameOptionsHeading);
+  gameOptionsDiv.appendChild(playerOption);
+  gameOptionsDiv.appendChild(computerOption);
+  gameOptionsDiv.appendChild(startButton);
 
-    startBoard.appendChild(gameOptionsDiv);
-    startBoard.appendChild(overlay);
+  startBoard.appendChild(gameOptionsDiv);
+  startBoard.appendChild(overlay);
 
-    playerOption.addEventListener('click', () => {
-        if (computerOption.classList.contains('current-option')) computerOption.classList.remove('current-option');
-        playerOption.classList.add('current-option');
-    });
+  playerOption.addEventListener("click", () => {
+    if (computerOption.classList.contains("current-option"))
+      computerOption.classList.remove("current-option");
+    playerOption.classList.add("current-option");
+  });
 
-    computerOption.addEventListener('click', () => {
-        if (playerOption.classList.contains('current-option')) playerOption.classList.remove('current-option');
-        computerOption.classList.add('current-option');
-    });
+  computerOption.addEventListener("click", () => {
+    if (playerOption.classList.contains("current-option"))
+      playerOption.classList.remove("current-option");
+    computerOption.classList.add("current-option");
+  });
 
-    startButton.addEventListener('click', () => {
-        const currentOption = document.querySelector('.current-option');
+  startButton.addEventListener("click", () => {
+    const currentOption = document.querySelector(".current-option");
 
-        removeEmptyBoard();
-        removeRandomizeButtons();
+    removeEmptyBoard();
+    removeRandomizeButtons();
 
-        if (currentOption.textContent === 'Player') {
-            playerGame();
-        } else if (currentOption.textContent === 'Computer') {
-            computerGame();
-        }
+    if (currentOption.textContent === "Player") {
+      playerGame();
+    } else if (currentOption.textContent === "Computer") {
+      computerGame();
+    }
 
-        document.addEventListener('click', cellClickHandler);
-    });
+    document.addEventListener("click", cellClickHandler);
+  });
 }
 
 function computerGame() {
-    const { playerOne } = players;
+  const { playerOne } = players;
 
-    players.playerTwo = createPlayer('Computer');
-    displayBoard(players.playerTwo);
-    disableBoard(playerOne);
+  players.playerTwo = createPlayer("Computer");
+  displayBoard(players.playerTwo);
+  disableBoard(playerOne);
 }
 
 function playerGame() {
-    players.playerTwo = createPlayer('Player Two');
-    players.currentPlayer = players.playerTwo;
-    const { playerOne, playerTwo } = players;
+  players.playerTwo = createPlayer("Player Two");
+  players.currentPlayer = players.playerTwo;
+  const { playerOne, playerTwo } = players;
 
-    displayBoard(playerTwo, true);
-    setupHideBoard(playerOne);
+  displayBoard(playerTwo, true);
+  setupHideBoard(playerOne);
 }
 
 export function showPassScreen() {
-    const passDiv = document.createElement('div');
-    const passHeading = document.createElement('h1');
-    const passPara = document.createElement('p');
-    const passButton = document.createElement('button');
-    const overlay = document.createElement('div');
+  const passDiv = document.createElement("div");
+  const passHeading = document.createElement("h1");
+  const passPara = document.createElement("p");
+  const passButton = document.createElement("button");
+  const overlay = document.createElement("div");
 
-    passButton.type = 'button';
-    passHeading.textContent = 'Pass Your Device!';
-    passPara.textContent = 'When you\'re ready, click the button!';
-    passButton.textContent = 'Start Turn';
+  passButton.type = "button";
+  passHeading.textContent = "Pass Your Device!";
+  passPara.textContent = "When you're ready, click the button!";
+  passButton.textContent = "Start Turn";
 
-    passDiv.classList.add('pass-div');
-    passHeading.classList.add('pass-heading');
-    passPara.classList.add('pass-para');
-    passButton.classList.add('pass-button');
-    overlay.classList.add('pass-overlay');
+  passDiv.classList.add("pass-div");
+  passHeading.classList.add("pass-heading");
+  passPara.classList.add("pass-para");
+  passButton.classList.add("pass-button");
+  overlay.classList.add("pass-overlay");
 
-    passDiv.appendChild(passHeading)
-    passDiv.appendChild(passPara);
-    passDiv.append(passButton);
+  passDiv.appendChild(passHeading);
+  passDiv.appendChild(passPara);
+  passDiv.append(passButton);
 
-    document.body.appendChild(passDiv);
-    document.body.appendChild(overlay);
+  document.body.appendChild(passDiv);
+  document.body.appendChild(overlay);
 
-    // add transition to pass screen
-    void overlay.offsetWidth;
-    overlay.classList.add('show');
+  // add transition to pass screen
+  void overlay.offsetWidth;
+  overlay.classList.add("show");
 
-    passButton.addEventListener('click', switchTurns);
+  passButton.addEventListener("click", switchTurns);
 }
 
 export function removePassScreen() {
-    const passDiv = document.querySelector('.pass-div');
-    const overlay = document.querySelector('.pass-overlay');
+  const passDiv = document.querySelector(".pass-div");
+  const overlay = document.querySelector(".pass-overlay");
 
-    passDiv.remove();
-    overlay.remove();
+  passDiv.remove();
+  overlay.remove();
 }
 
 export function showIntermissionDiv(player) {
-    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+  const gameboard = document.querySelector(`[data-player="${player.name}"]`);
 
-    gameboard.classList.add('grayed-out');
-    gameboard.querySelectorAll('.column').forEach((column) => {
-        column.classList.add('disabled');
-    });
+  gameboard.classList.add("grayed-out");
+  gameboard.querySelectorAll(".column").forEach((column) => {
+    column.classList.add("disabled");
+  });
 
-    const intermissionDiv = document.createElement('div');
-    const intermissionHeading = document.createElement('h2');
-    const intermissionPara = document.createElement('p');
-    const intermissionButton = document.createElement('button');
-    const overlay = document.createElement('div');
+  const intermissionDiv = document.createElement("div");
+  const intermissionHeading = document.createElement("h2");
+  const intermissionPara = document.createElement("p");
+  const intermissionButton = document.createElement("button");
+  const overlay = document.createElement("div");
 
-    intermissionButton.type = 'button';
-    intermissionHeading.textContent = 'Place your ships';
-    intermissionPara.textContent = 'When you\'re ready, click the button!';
-    intermissionButton.textContent = 'Start game';
+  intermissionButton.type = "button";
+  intermissionHeading.textContent = "Place your ships";
+  intermissionPara.textContent = "When you're ready, click the button!";
+  intermissionButton.textContent = "Start game";
 
-    intermissionDiv.classList.add('intermission-div');
-    intermissionHeading.classList.add('intermission-heading');
-    intermissionPara.classList.add('intermission-para');
-    intermissionButton.classList.add('intermission-button');
-    overlay.classList.add('intermission-overlay');
+  intermissionDiv.classList.add("intermission-div");
+  intermissionHeading.classList.add("intermission-heading");
+  intermissionPara.classList.add("intermission-para");
+  intermissionButton.classList.add("intermission-button");
+  overlay.classList.add("intermission-overlay");
 
-    intermissionDiv.appendChild(intermissionHeading)
-    intermissionDiv.appendChild(intermissionPara);
-    intermissionDiv.append(intermissionButton);
+  intermissionDiv.appendChild(intermissionHeading);
+  intermissionDiv.appendChild(intermissionPara);
+  intermissionDiv.append(intermissionButton);
 
-    gameboard.appendChild(intermissionDiv);
-    gameboard.appendChild(overlay);
+  gameboard.appendChild(intermissionDiv);
+  gameboard.appendChild(overlay);
 
-    intermissionButton.addEventListener('click', playerGameStart);
+  intermissionButton.addEventListener("click", playerGameStart);
 }
 
 export function removeIntermissionDiv(player) {
-    const gameboard = document.querySelector(`[data-player="${player.name}"]`);
-    const intermissionDiv = document.querySelector('.intermission-div');
-    const overlay = document.querySelector('.intermission-overlay');
+  const gameboard = document.querySelector(`[data-player="${player.name}"]`);
+  const intermissionDiv = document.querySelector(".intermission-div");
+  const overlay = document.querySelector(".intermission-overlay");
 
-    gameboard.classList.remove('grayed-out');
-    intermissionDiv.remove();
-    overlay.remove();
+  gameboard.classList.remove("grayed-out");
+  intermissionDiv.remove();
+  overlay.remove();
 }
 
 export function checkGameOver(playerOne, playerTwo) {
-    const isGameOver = false;
+  const isGameOver = false;
 
-    if (playerOne.gameboard.allShipsSunk()) {
-        gameOver(playerTwo.name);
-        return true;
-    } else if (playerTwo.gameboard.allShipsSunk()) {
-        gameOver(playerOne.name);
-        return true;
-    }
+  if (playerOne.gameboard.allShipsSunk()) {
+    gameOver(playerTwo.name);
+    return true;
+  } else if (playerTwo.gameboard.allShipsSunk()) {
+    gameOver(playerOne.name);
+    return true;
+  }
 
-    return isGameOver;
+  return isGameOver;
 }
 
 function gameOver(winner) {
-    players.currentPlayer = 'Game Over';
+  players.currentPlayer = "Game Over";
 
-    const passDiv = document.querySelector('.pass-div');
-    const endTurnButton = document.querySelector('.end-turn-button');
-    if (passDiv) removePassScreen();
-    if (endTurnButton) endTurnButton.remove();
-    
-    const overlay = document.createElement('div');
-    const gameOverDiv = document.createElement('div');
-    const gameOverHeading = document.createElement('h1');
-    const gameOverResult = document.createElement('h2');
-    const newGameButton = document.createElement('button');
+  const passDiv = document.querySelector(".pass-div");
+  const endTurnButton = document.querySelector(".end-turn-button");
+  if (passDiv) removePassScreen();
+  if (endTurnButton) endTurnButton.remove();
 
-    newGameButton.type = 'button';
-    gameOverHeading.textContent = 'Game Over!';
-    gameOverResult.textContent = `${winner} has won.`;
-    newGameButton.textContent = 'New game';
+  const overlay = document.createElement("div");
+  const gameOverDiv = document.createElement("div");
+  const gameOverHeading = document.createElement("h1");
+  const gameOverResult = document.createElement("h2");
+  const newGameButton = document.createElement("button");
 
-    overlay.classList.add('overlay');
-    gameOverDiv.classList.add('game-over-div');
-    gameOverHeading.classList.add('game-over-heading');
-    gameOverResult.classList.add('game-over-result');
-    newGameButton.classList.add('new-game-button');
+  newGameButton.type = "button";
+  gameOverHeading.textContent = "Game Over!";
+  gameOverResult.textContent = `${winner} has won.`;
+  newGameButton.textContent = "New game";
 
-    newGameButton.addEventListener('click', () => {
-        overlay.remove();
-        gameOverDiv.remove();
-        resetGame();
-    });
+  overlay.classList.add("overlay");
+  gameOverDiv.classList.add("game-over-div");
+  gameOverHeading.classList.add("game-over-heading");
+  gameOverResult.classList.add("game-over-result");
+  newGameButton.classList.add("new-game-button");
 
-    gameOverDiv.appendChild(gameOverHeading);
-    gameOverDiv.appendChild(gameOverResult);
-    gameOverDiv.appendChild(newGameButton);
+  newGameButton.addEventListener("click", () => {
+    overlay.remove();
+    gameOverDiv.remove();
+    resetGame();
+  });
 
-    document.body.appendChild(overlay);
-    document.body.appendChild(gameOverDiv);
+  gameOverDiv.appendChild(gameOverHeading);
+  gameOverDiv.appendChild(gameOverResult);
+  gameOverDiv.appendChild(newGameButton);
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(gameOverDiv);
 }
 
 function resetGame() {
-    const boards = document.querySelector('.boards');
-    boards.replaceChildren();
+  const boards = document.querySelector(".boards");
+  boards.replaceChildren();
 
-    document.body.removeEventListener('click', cellClickHandler);
+  document.body.removeEventListener("click", cellClickHandler);
 
-    gameController();
+  gameController();
 }
 
 export function updatePlayerTurn(playerOne, playerTwo) {
-    const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
-    const nextPlayer = playerOne.currentTurn ? playerTwo: playerOne;
+  const currentPlayer = playerOne.currentTurn ? playerOne : playerTwo;
+  const nextPlayer = playerOne.currentTurn ? playerTwo : playerOne;
 
-    currentPlayer.currentTurn = false;
-    nextPlayer.currentTurn = true;
+  currentPlayer.currentTurn = false;
+  nextPlayer.currentTurn = true;
 
-    disableBoard(nextPlayer);
-    enableBoard(currentPlayer);
+  disableBoard(nextPlayer);
+  enableBoard(currentPlayer);
 }
 
 export function showEndTurnButton() {
-    const endTurnButton = document.createElement('button');
-    endTurnButton.classList.add('end-turn-button');
-    endTurnButton.type = 'button';
-    endTurnButton.textContent = 'End Turn';
+  const endTurnButton = document.createElement("button");
+  endTurnButton.classList.add("end-turn-button");
+  endTurnButton.type = "button";
+  endTurnButton.textContent = "End Turn";
 
-    document.body.appendChild(endTurnButton);
+  document.body.appendChild(endTurnButton);
 
-    endTurnButton.addEventListener('click', endTurnClicked);
+  endTurnButton.addEventListener("click", endTurnClicked);
 }

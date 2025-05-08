@@ -39,9 +39,9 @@ export class Gameboard {
 
   placeShip(coordinates) {
     // check and add correct ship direction
-    let direction = 'vertical';
+    let direction = "vertical";
     if (coordinates.length > 1) {
-      if (coordinates[0][0] + 1 !== coordinates[1][0]) direction = 'horizontal';
+      if (coordinates[0][0] + 1 !== coordinates[1][0]) direction = "horizontal";
     }
 
     const newShip = new Ship(coordinates.length, coordinates, direction);
@@ -54,7 +54,7 @@ export class Gameboard {
   }
 
   receiveAttack(coordinate) {
-    const [ row, column ] = coordinate.split(',').map(Number);
+    const [row, column] = coordinate.split(",").map(Number);
 
     if (this.board[row][column].length !== 0) {
       // invokes hit method on ship that occupies the coordinates
@@ -62,14 +62,14 @@ export class Gameboard {
 
       this.attacks.push({
         coordinate,
-        result: 'hit',
+        result: "hit",
       });
 
       return true;
     } else {
       this.attacks.push({
         coordinate,
-        result: 'miss',
+        result: "miss",
       });
 
       return false;
@@ -84,7 +84,7 @@ export class Gameboard {
     const moves = Array.from(this.availableMoves);
     const randomIndex = Math.floor(Math.random() * moves.length);
     const coordinate = moves[randomIndex];
-    
+
     // returns a string (row,column. Just a reminder!)
     return coordinate;
   }
@@ -111,6 +111,6 @@ export class Gameboard {
   use(coordinates) {
     coordinates.forEach((coordinate) => {
       this.usedCoordinates.add(coordinate);
-    })
+    });
   }
 }
